@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+    <id>finance_tracker</id>
+    <name>Finance Tracker</name>
+    <summary>Personal finance tracking application</summary>
+    <description>
+        A comprehensive personal finance tracking application integrated with Nextcloud.
+        Features include:
+        - Expense tracking
+        - Budget management
+        - Financial goal setting
+        - Secure data storage within Nextcloud
+    </description>
+    <version>1.0.0</version>
+    <licence>agpl</licence>
+    <author>Your Name</author>
+    <namespace>FinanceTracker</namespace>
+    <category>productivity</category>
+    <website>https://github.com/yourusername/finance-tracker</website>
+    <bugs>https://github.com/yourusername/finance-tracker/issues</bugs>
+    <repository>https://github.com/yourusername/finance-tracker</repository>
+    <dependencies>
+        <nextcloud min-version="25" max-version="28"/>
+        <php min-version="7.4"/>
+        <database>sqlite</database>
+        <database>pgsql</database>
+        <database>mysql</database>
+    </dependencies>
+    <settings>
+        <admin>OCA\FinanceTracker\Settings\AdminSettings</admin>
+        <personal>OCA\FinanceTracker\Settings\PersonalSettings</personal>
+    </settings>
+    <screenshots>
+        <screenshot>https://example.com/screenshot1.png</screenshot>
+        <screenshot>https://example.com/screenshot2.png</screenshot>
+    </screenshots>
+    <repair-steps>
+        <step>OCA\FinanceTracker\Migration\RepairStep</step>
+    </repair-steps>
+</info>
