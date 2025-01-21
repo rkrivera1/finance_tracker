@@ -5,7 +5,9 @@
       <directory suffix=".php">nextcloud/lib</directory>
     </include>
   </coverage>
-  <testsuites>
+  <testsuites>git branch -M main
+  git remote add origin https://github.com/YOUR_GITHUB_USERNAME/nextcloud-finance-tracker.git
+  git push -u origin main
     <testsuite name="Nextcloud Finance Tracker Test Suite">
       <directory suffix="Test.php">tests/Unit</directory>
       <directory suffix="Test.php">tests/Integration</directory>
