@@ -1,7 +1,4 @@
-// Finance Tracker JavaScript
-document.addEventListener("DOMContentLoaded", function() {
-    console.log("Finance Tracker app loaded");
-
+document.addEventListener('DOMContentLoaded', function() {
     // Utility function for showing toast notifications
     function showNotification(message, type = 'info') {
         const notification = document.createElement('div');
