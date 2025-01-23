@@ -42,7 +42,24 @@ backend/*.pyc
 backend/*.pyo
 
 # PHP
-vendor/
+/vendor/
 composer.phar
+composer.lock
 .phpunit.result.cache
 composer-setup.php
+
+# Composer
+/vendor/
+composer.lock
+
+# IDE files
+.idea/
+.vscode/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Nextcloud specific
+*.log
+.php_cs.cache

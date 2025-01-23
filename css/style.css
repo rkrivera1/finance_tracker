@@ -1,0 +1,78 @@
+/* Finance Tracker Styles */
+#app-content .container {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.section {
+    margin-bottom: 30px;
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.section h2 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+button {
+    background-color: #0082c9;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 15px;
+}
+
+button:hover {
+    background-color: #005c9c;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal {
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    width: 400px;
+    max-width: 90%;
+}
+
+.modal form {
+    display: flex;
+    flex-direction: column;
+}
+
+.modal input, 
+.modal select {
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.cancel-btn {
+    background-color: #888;
+}
+
+.cancel-btn:hover {
+    background-color: #666;
+}
