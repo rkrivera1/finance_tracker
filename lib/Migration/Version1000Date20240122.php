@@ -46,7 +46,7 @@ class Version1000Date20240122 extends SimpleMigrationStep {
             ]);
 
             $table->setPrimaryKey(['id']);
-            $table->addIndex(['user_id'], 'finance_tracker_user_idx');
+            $table->addIndex(['user_id'], 'ft_accounts_user');
         }
 
         // Budgets Table
@@ -81,7 +81,7 @@ class Version1000Date20240122 extends SimpleMigrationStep {
             ]);
 
             $table->setPrimaryKey(['id']);
-            $table->addIndex(['user_id'], 'finance_tracker_budget_user_idx');
+            $table->addIndex(['user_id'], 'ft_budgets_user');
         }
 
         // Transactions Table
@@ -116,8 +116,8 @@ class Version1000Date20240122 extends SimpleMigrationStep {
             ]);
 
             $table->setPrimaryKey(['id']);
-            $table->addIndex(['user_id'], 'finance_tracker_trans_user_idx');
-            $table->addIndex(['account_id'], 'finance_tracker_trans_account_idx');
+            $table->addIndex(['user_id'], 'ft_trans_user');
+            $table->addIndex(['account_id'], 'ft_trans_account');
         }
 
         // Investments Table
@@ -154,7 +154,7 @@ class Version1000Date20240122 extends SimpleMigrationStep {
             ]);
 
             $table->setPrimaryKey(['id']);
-            $table->addIndex(['user_id'], 'finance_tracker_invest_user_idx');
+            $table->addIndex(['user_id'], 'ft_invest_user');
         }
 
         return $schema;
