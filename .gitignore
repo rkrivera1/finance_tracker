@@ -30,7 +30,9 @@ yarn-error.log
 .env.production.local
 
 # Misc
-.DS_Store
+.DS_Storedocker --version
+docker-compose --version
+docker info
 *.log
 
 # Frontend build
