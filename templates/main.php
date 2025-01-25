@@ -29,6 +29,16 @@ style('finance_tracker', 'style');
                     <h2>Budgets</h2>
                     <div id="budgets-list" class="item-list"></div>
                 </section>
+
+                <section class="transactions-section">
+                    <h2>Transactions</h2>
+                    <div id="transactions-list" class="item-list"></div>
+                </section>
+
+                <section class="investments-section">
+                    <h2>Investments</h2>
+                    <div id="investments-list" class="item-list"></div>
+                </section>
             </div>
 
             <!-- Modals -->

@@ -39,7 +39,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const lists = {
         accounts: document.getElementById('accounts-list'),
-        budgets: document.getElementById('budgets-list')
+        budgets: document.getElementById('budgets-list'),
+        transactions: document.getElementById('transactions-list'),
+        investments: document.getElementById('investments-list')
     };
 
     // Open modal functions
@@ -120,6 +122,75 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => {
                 console.error('Error fetching budgets:', error);
                 showNotification('Failed to load budgets', 'error');
+            });
+    }
+
+    // Fetch and display transactions
+    function fetchTransactions() {
+        fetch(OC.generateUrl('apps/finance_tracker/transactions'))
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch transactions');
+                }
+                return response.json();
+            })
+            .then(transactions => {
+                lists.transactions.innerHTML = ''; // Clear existing transactions
+                if (transactions.length === 0) {
+                    const noTransactionsMessage = document.createElement('p');
+                    noTransactionsMessage.textContent = 'No transactions found.';
+                    lists.transactions.appendChild(noTransactionsMessage);
+                    return;
+                }
+                transactions.forEach(transaction => {
+                    const transactionElement = document.createElement('div');
+                    transactionElement.classList.add('transaction-item');
+                    transactionElement.innerHTML = `
+                        <strong>${transaction.description}</strong>
+                        <span>${transaction.type}</span>
+                        <span>$${transaction.amount.toFixed(2)}</span>
+                    `;
+                    lists.transactions.appendChild(transactionElement);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching transactions:', error);
+                showNotification('Failed to load transactions', 'error');
+            });
+    }
+
+    // Fetch and display investments
+    function fetchInvestments() {
+        fetch(OC.generateUrl('apps/finance_tracker/investments'))
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch investments');
+                }
+                return response.json();
+            })
+            .then(investments => {
+                lists.investments.innerHTML = ''; // Clear existing investments
+                if (investments.length === 0) {
+                    const noInvestmentsMessage = document.createElement('p');
+                    noInvestmentsMessage.textContent = 'No investments found.';
+                    lists.investments.appendChild(noInvestmentsMessage);
+                    return;
+                }
+                investments.forEach(investment => {
+                    const investmentElement = document.createElement('div');
+                    investmentElement.classList.add('investment-item');
+                    investmentElement.innerHTML = `
+                        <strong>${investment.name}</strong>
+                        <span>Ticker: ${investment.ticker}</span>
+                        <span>Shares: ${investment.shares}</span>
+                        <span>Purchase Price: $${investment.purchasePrice.toFixed(2)}</span>
+                    `;
+                    lists.investments.appendChild(investmentElement);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching investments:', error);
+                showNotification('Failed to load investments', 'error');
             });
     }
 
@@ -217,35 +288,83 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Initial fetches
-    fetchAccounts();
-    fetchBudgets();
-
-    // Placeholder submission handlers for other forms
+    // Transaction form submission
     forms.transaction.addEventListener('submit', function(event) {
         event.preventDefault();
         const description = document.getElementById('transaction-description').value;
         const amount = document.getElementById('transaction-amount').value;
         const type = document.getElementById('transaction-type').value;
-        const account = document.getElementById('transaction-account').value;
-        const date = document.getElementById('transaction-date').value;
+        const accountId = document.getElementById('transaction-account').value;
 
-        // TODO: Send data to backend
-        console.log('Transaction submitted:', { description, amount, type, account, date });
-        showNotification('Transaction recording coming soon!', 'info');
-        closeModal();
+        fetch(OC.generateUrl('apps/finance_tracker/transactions'), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                description: description,
+                amount: amount,
+                type: type,
+                accountId: accountId
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to add transaction');
+            }
+            return response.json();
+        })
+        .then(transaction => {
+            showNotification('Transaction added successfully', 'success');
+            fetchTransactions();
+            closeModal();
+        })
+        .catch(error => {
+            console.error('Error adding transaction:', error);
+            showNotification('Failed to add transaction', 'error');
+        });
     });
 
+    // Investment form submission
     forms.investment.addEventListener('submit', function(event) {
         event.preventDefault();
         const name = document.getElementById('investment-name').value;
         const ticker = document.getElementById('investment-ticker').value;
         const shares = document.getElementById('investment-shares').value;
-        const price = document.getElementById('investment-price').value;
+        const purchasePrice = document.getElementById('investment-purchase-price').value;
 
-        // TODO: Send data to backend
-        console.log('Investment submitted:', { name, ticker, shares, price });
-        showNotification('Investment tracking coming soon!', 'info');
-        closeModal();
+        fetch(OC.generateUrl('apps/finance_tracker/investments'), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: name,
+                ticker: ticker,
+                shares: shares,
+                purchasePrice: purchasePrice
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to add investment');
+            }
+            return response.json();
+        })
+        .then(investment => {
+            showNotification('Investment added successfully', 'success');
+            fetchInvestments();
+            closeModal();
+        })
+        .catch(error => {
+            console.error('Error adding investment:', error);
+            showNotification('Failed to add investment', 'error');
+        });
     });
+
+    // Initial fetches
+    fetchAccounts();
+    fetchBudgets();
+    fetchTransactions();
+    fetchInvestments();
 });
