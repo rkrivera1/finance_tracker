@@ -3,26 +3,22 @@
       xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
     <id>finance_tracker</id>
     <name>Finance Tracker</name>
-    <summary>Personal finance tracking application</summary>
-    <description>
-        A comprehensive personal finance tracking application integrated with Nextcloud.
-        Features include:
-        - Expense tracking
-        - Budget management
-        - Financial goal setting
-        - Secure data storage within Nextcloud
-    </description>
-    <version>1.0</version>
+    <summary>Personal finance and investment tracking application</summary>
+    <description>A comprehensive finance management tool for tracking expenses, budgets, and investments</description>
+    <version>1.0.1</version>
     <licence>agpl</licence>
     <author>Juan Rivera</author>
     <namespace>FinanceTracker</namespace>
-    <category>productivity</category>
+    <category>finance</category>
     <website>https://github.com/rkrivera1/nextcloud-finance-tracker</website>
     <bugs>https://github.com/rkrivera1/nextcloud-finance-tracker/issues</bugs>
     <dependencies>
-        <nextcloud min-version="24" max-version="30"/>
-        <php min-version="8.1"/>
+        <nextcloud min-version="20" max-version="28"/>
+        <php min-version="7.4"/>
     </dependencies>
+    <settings>
+        <admin>OCA\FinanceTracker\Settings\AdminSettings</admin>
+    </settings>
     <navigations>
         <navigation>
             <name>Finance Tracker</name>
