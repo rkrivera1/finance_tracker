@@ -46,7 +46,6 @@ class Version1000Date20240122 extends SimpleMigrationStep {
             ]);
 
             $table->setPrimaryKey(['id']);
-            $table->addIndex(['user_id']);
         }
 
         // Budgets Table
@@ -81,7 +80,6 @@ class Version1000Date20240122 extends SimpleMigrationStep {
             ]);
 
             $table->setPrimaryKey(['id']);
-            $table->addIndex(['user_id']);
         }
 
         // Transactions Table
@@ -116,8 +114,6 @@ class Version1000Date20240122 extends SimpleMigrationStep {
             ]);
 
             $table->setPrimaryKey(['id']);
-            $table->addIndex(['user_id']);
-            $table->addIndex(['account_id']);
         }
 
         // Investments Table
@@ -154,7 +150,6 @@ class Version1000Date20240122 extends SimpleMigrationStep {
             ]);
 
             $table->setPrimaryKey(['id']);
-            $table->addIndex(['user_id']);
         }
 
         return $schema;
