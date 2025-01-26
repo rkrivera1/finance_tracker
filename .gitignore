@@ -1,67 +1,69 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-backend/venv/
-*.pyc
-*.pyo
-*.pyd
+# Nextcloud App Development Gitignore
 
-# Node
-node_modules/
-frontend/node_modules/
+# Composer dependencies
+/vendor/
+composer.phar
+composer.lock
+
+# PHP build and cache files
+.phpunit.result.cache
+*.php.cache
+
+# Node.js dependencies (if using npm/webpack)
+/node_modules/
 npm-debug.log
 yarn-debug.log
 yarn-error.log
 
-# IDEs
-.vscode/
+# Build artifacts
+build/
+dist/
+
+# IDE and editor files
 .idea/
+.vscode/
 *.swp
 *.swo
-
-# Environment
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Misc
-.DS_Storedocker --version
-docker-compose --version
-docker info
-*.log
-
-# Frontend build
-frontend/build/
-
-# Backend
-backend/__pycache__/
-backend/*.pyc
-backend/*.pyo
-
-# PHP
-/vendor/
-composer.phar
-composer.lock
-.phpunit.result.cache
-composer-setup.php
-
-# Composer
-/vendor/
-composer.lock
-
-# IDE files
-.idea/
-.vscode/
+*.swn
+*~
 
 # OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
+# Environment and sensitive files
+.env
+*.env
+*.env.local
+*.env.development
+*.env.production
+
 # Nextcloud specific
+.htaccess
+config/
+data/
+apps/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# Logs
 *.log
-.php_cs.cache
+
+# Security
+*.key
+*.pem
+*.crt
+
+# Exclude local configuration
+config/config.php
+
+# Exclude any local development files
+local.php

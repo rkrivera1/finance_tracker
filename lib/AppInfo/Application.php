@@ -25,14 +25,7 @@ class Application extends App implements IBootstrap {
     }
 
     public function register(IRegistrationContext $context): void {
-        // Register Controllers
-        $context->registerController(PageController::class);
-        $context->registerController(AccountController::class);
-        $context->registerController(BudgetController::class);
-        $context->registerController(TransactionController::class);
-        $context->registerController(InvestmentController::class);
-
-        // Register Mappers as Services
+        // Register Services
         $context->registerService(AccountMapper::class, function($c) {
             return new AccountMapper(
                 $c->query(\OCP\IDBConnection::class)
@@ -54,6 +47,50 @@ class Application extends App implements IBootstrap {
         $context->registerService(InvestmentMapper::class, function($c) {
             return new InvestmentMapper(
                 $c->query(\OCP\IDBConnection::class)
+            );
+        });
+
+        // Register Controllers as Services
+        $context->registerService(PageController::class, function($c) {
+            return new PageController(
+                self::APP_ID,
+                $c->query(\OCP\IRequest::class)
+            );
+        });
+
+        $context->registerService(AccountController::class, function($c) {
+            return new AccountController(
+                self::APP_ID,
+                $c->query(\OCP\IRequest::class),
+                $c->query(AccountMapper::class),
+                $c->query(\OCP\IUserSession::class)->getUser()->getUID()
+            );
+        });
+
+        $context->registerService(BudgetController::class, function($c) {
+            return new BudgetController(
+                self::APP_ID,
+                $c->query(\OCP\IRequest::class),
+                $c->query(BudgetMapper::class),
+                $c->query(\OCP\IUserSession::class)->getUser()->getUID()
+            );
+        });
+
+        $context->registerService(TransactionController::class, function($c) {
+            return new TransactionController(
+                self::APP_ID,
+                $c->query(\OCP\IRequest::class),
+                $c->query(TransactionMapper::class),
+                $c->query(\OCP\IUserSession::class)->getUser()->getUID()
+            );
+        });
+
+        $context->registerService(InvestmentController::class, function($c) {
+            return new InvestmentController(
+                self::APP_ID,
+                $c->query(\OCP\IRequest::class),
+                $c->query(InvestmentMapper::class),
+                $c->query(\OCP\IUserSession::class)->getUser()->getUID()
             );
         });
     }

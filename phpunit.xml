@@ -2,12 +2,10 @@
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd" bootstrap="tests/bootstrap.php" colors="true" verbose="true">
   <coverage processUncoveredFiles="true">
     <include>
-      <directory suffix=".php">nextcloud/lib</directory>
+      <directory suffix=".php">lib</directory>
     </include>
   </coverage>
-  <testsuites>git branch -M main
-  git remote add origin https://github.com/YOUR_GITHUB_USERNAME/nextcloud-finance-tracker.git
-  git push -u origin main
+  <testsuites>
     <testsuite name="Nextcloud Finance Tracker Test Suite">
       <directory suffix="Test.php">tests/Unit</directory>
       <directory suffix="Test.php">tests/Integration</directory>
@@ -16,5 +14,10 @@
   <php>
     <env name="APP_ENV" value="testing"/>
     <env name="NEXTCLOUD_TESTING" value="1"/>
+    <const name="PHPUNIT_RUNTIME" value="true"/>
   </php>
+  <logging>
+    <junit outputFile="build/logs/junit.xml"/>
+    <text outputFile="build/logs/logfile.log"/>
+  </logging>
 </phpunit>
