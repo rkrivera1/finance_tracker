@@ -2,11 +2,6 @@
 script('finance_tracker', 'script');
 style('finance_tracker', 'style');
 ?>
-<?php
-// Add Font Awesome stylesheet
-$this->print('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqNy0wnqwMZsuCkhWr+wXSWThxSod3W9nJR4xhM6Y9UQh5lTGAyrLQYxHmMw+WYHvwYaVw==" crossorigin="anonymous" referrerpolicy="no-referrer" />');
-?>
-
 <div id="app">
     <div id="app-navigation">
         <?php print_unescaped($this->inc('navigation')); ?>
