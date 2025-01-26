@@ -21,11 +21,11 @@
 
 /* Sidebar Navigation Styling */
 #app-navigation {
-    width: 250px;
     background-color: #f8f9fa;
-    border-right: 1px solid #e9ecef;
+    border-right: 1px solid #e1e4e8;
+    width: 250px;
     padding: 20px 0;
-    transition: all 0.3s ease;
+    transition: width 0.3s ease;
 }
 
 #app-navigation ul {
@@ -38,7 +38,7 @@
     margin: 0;
 }
 
-#app-navigation ul li a {
+#app-navigation a {
     display: flex;
     align-items: center;
     padding: 12px 20px;
@@ -46,32 +46,39 @@
     text-decoration: none;
     font-weight: 500;
     transition: all 0.2s ease;
-    border-left: 4px solid transparent;
+    position: relative;
 }
 
-#app-navigation ul li a:hover {
-    background-color: #e9ecef;
-    color: #212529;
-    border-left-color: #007bff;
+#app-navigation a::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background-color: transparent;
+    transition: background-color 0.2s ease;
 }
 
-#app-navigation ul li a.active {
+#app-navigation a:hover,
+#app-navigation a.active {
     background-color: #e9ecef;
     color: #007bff;
-    border-left-color: #007bff;
-    font-weight: 600;
 }
 
-#app-navigation ul li a i,
-#app-navigation ul li a .icon {
+#app-navigation a.active::before {
+    background-color: #007bff;
+}
+
+#app-navigation a i {
     margin-right: 12px;
     font-size: 18px;
     color: #6c757d;
     transition: color 0.2s ease;
 }
 
-#app-navigation ul li a:hover i,
-#app-navigation ul li a:hover .icon {
+#app-navigation a:hover i,
+#app-navigation a.active i {
     color: #007bff;
 }
 
@@ -82,11 +89,11 @@
         overflow: hidden;
     }
     
-    #app-navigation ul li a span {
+    #app-navigation a span {
         display: none;
     }
     
-    #app-navigation ul li a {
+    #app-navigation a {
         justify-content: center;
     }
 }
