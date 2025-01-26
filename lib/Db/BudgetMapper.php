@@ -6,7 +6,7 @@ use OCP\AppFramework\Db\QBMapper;
 
 class BudgetMapper extends QBMapper {
     public function __construct(IDBConnection $db) {
-        parent::__construct($db, 'finance_tracker_budgets', Budget::class);
+        parent::__construct($db, 'ft_budgets', Budget::class);
     }
 
     public function findByUser(string $userId) {
@@ -18,12 +18,19 @@ class BudgetMapper extends QBMapper {
         return $this->findEntities($qb);
     }
 
-    public function create(string $name, float $amount, string $category, string $userId, \DateTime $startDate, \DateTime $endDate) {
+    public function create(
+        string $userId, 
+        string $name, 
+        float $amount, 
+        string $category, 
+        \DateTime $startDate, 
+        \DateTime $endDate
+    ) {
         $budget = new Budget();
+        $budget->setUserId($userId);
         $budget->setName($name);
         $budget->setAmount($amount);
         $budget->setCategory($category);
-        $budget->setUserId($userId);
         $budget->setStartDate($startDate);
         $budget->setEndDate($endDate);
         

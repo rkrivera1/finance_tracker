@@ -6,7 +6,7 @@ use OCP\AppFramework\Db\QBMapper;
 
 class TransactionMapper extends QBMapper {
     public function __construct(IDBConnection $db) {
-        parent::__construct($db, 'finance_tracker_transactions', Transaction::class);
+        parent::__construct($db, 'ft_trans', Transaction::class);
     }
 
     public function findByUser(string $userId) {

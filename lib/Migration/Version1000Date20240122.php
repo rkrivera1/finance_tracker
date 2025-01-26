@@ -18,8 +18,8 @@ class Version1000Date20240122 extends SimpleMigrationStep {
         $schema = $schemaClosure();
 
         // Accounts Table
-        if (!$schema->hasTable('finance_tracker_accounts')) {
-            $table = $schema->createTable('finance_tracker_accounts');
+        if (!$schema->hasTable('ft_accounts')) {
+            $table = $schema->createTable('ft_accounts');
             $table->addColumn('id', 'integer', [
                 'autoincrement' => true,
                 'notnull' => true,
@@ -49,8 +49,8 @@ class Version1000Date20240122 extends SimpleMigrationStep {
         }
 
         // Budgets Table
-        if (!$schema->hasTable('finance_tracker_budgets')) {
-            $table = $schema->createTable('finance_tracker_budgets');
+        if (!$schema->hasTable('ft_budgets')) {
+            $table = $schema->createTable('ft_budgets');
             $table->addColumn('id', 'integer', [
                 'autoincrement' => true,
                 'notnull' => true,
@@ -83,8 +83,8 @@ class Version1000Date20240122 extends SimpleMigrationStep {
         }
 
         // Transactions Table
-        if (!$schema->hasTable('finance_tracker_transactions')) {
-            $table = $schema->createTable('finance_tracker_transactions');
+        if (!$schema->hasTable('ft_trans')) {
+            $table = $schema->createTable('ft_trans');
             $table->addColumn('id', 'integer', [
                 'autoincrement' => true,
                 'notnull' => true,
@@ -117,8 +117,8 @@ class Version1000Date20240122 extends SimpleMigrationStep {
         }
 
         // Investments Table
-        if (!$schema->hasTable('finance_tracker_investments')) {
-            $table = $schema->createTable('finance_tracker_investments');
+        if (!$schema->hasTable('ft_invest')) {
+            $table = $schema->createTable('ft_invest');
             $table->addColumn('id', 'integer', [
                 'autoincrement' => true,
                 'notnull' => true,

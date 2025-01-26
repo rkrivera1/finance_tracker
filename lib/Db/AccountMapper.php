@@ -6,7 +6,7 @@ use OCP\AppFramework\Db\QBMapper;
 
 class AccountMapper extends QBMapper {
     public function __construct(IDBConnection $db) {
-        parent::__construct($db, 'finance_tracker_accounts', Account::class);
+        parent::__construct($db, 'ft_accounts', Account::class);
     }
 
     public function findByUser(string $userId) {
