@@ -12,7 +12,7 @@
         - Financial goal setting
         - Secure data storage within Nextcloud
     </description>
-    <version>0.1</version>
+    <version>1.0</version>
     <licence>agpl</licence>
     <author>Juan Rivera</author>
     <namespace>FinanceTracker</namespace>
