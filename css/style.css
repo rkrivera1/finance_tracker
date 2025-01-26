@@ -1,8 +1,82 @@
 /* Finance Tracker App Styles */
-#app-content .finance-tracker-container {
+:root {
+    --color-primary: #3282b8;
+    --color-primary-light: #bae8e8;
+    --color-background: #f5f5f5;
+    --color-text: #333;
+    --color-border: #e0e0e0;
+    --color-success: #4caf50;
+    --color-error: #f44336;
+    --color-text-light: #666;
+    --color-text-muted: #999;
+}
+
+#app {
+    display: flex;
+    height: 100%;
+}
+
+#app-navigation {
+    width: 250px;
+    background-color: var(--color-background);
+    border-right: 1px solid var(--color-border);
+    padding: 20px;
+}
+
+#app-navigation ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+#app-navigation a {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    color: var(--color-text);
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+#app-navigation a:hover,
+#app-navigation a.active {
+    background-color: var(--color-primary-light);
+}
+
+#app-navigation a::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+#app-navigation a.nav-icon-accounts::before {
+    background-image: url('path/to/accounts-icon.svg');
+}
+
+#app-navigation a.nav-icon-transactions::before {
+    background-image: url('path/to/transactions-icon.svg');
+}
+
+#app-content {
+    flex-grow: 1;
+    padding: 20px;
+    background-color: white;
+    overflow-y: auto;
+}
+
+.finance-section {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
+}
+
+.finance-section h2 {
+    border-bottom: 2px solid var(--color-primary);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
 }
 
 .actions {
@@ -53,6 +127,127 @@
     align-items: center;
 }
 
+/* Transactions Section Styles */
+.transactions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.transactions-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.transactions-filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.transactions-filters select,
+.transactions-filters input[type="date"] {
+    padding: 8px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+}
+
+.transactions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.transaction-item {
+    background-color: var(--color-background);
+    border-radius: 4px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.transaction-details {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-grow: 1;
+}
+
+.transaction-date {
+    color: var(--color-text-light);
+    min-width: 100px;
+}
+
+.transaction-description {
+    flex-grow: 1;
+}
+
+.transaction-category {
+    color: var(--color-text-muted);
+    margin: 0 15px;
+}
+
+.transaction-amount {
+    font-weight: bold;
+}
+
+.transaction-amount.income {
+    color: var(--color-success);
+}
+
+.transaction-amount.expense {
+    color: var(--color-error);
+}
+
+.transactions-summary {
+    display: flex;
+    justify-content: space-between;
+    background-color: var(--color-background);
+    padding: 15px;
+    border-radius: 4px;
+    margin-top: 20px;
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.summary-item span:first-child {
+    color: var(--color-text-muted);
+    margin-bottom: 5px;
+}
+
+.summary-item span:last-child {
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+/* CSV Upload Styles */
+.csv-upload-container {
+    position: relative;
+}
+
+#csv-upload-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#csv-upload-btn i {
+    font-size: 1.2em;
+}
+
 /* Modal Styles */
 .modal-overlay {
     position: fixed;
@@ -60,7 +255,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.5);
+    background-color: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -70,11 +265,10 @@
 .modal {
     background-color: white;
     border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 500px;
+    max-width: 90%;
     padding: 20px;
-    width: 100%;
-    max-width: 500px;
-    max-height: 80vh;
-    overflow-y: auto;
 }
 
 .modal-content {
@@ -83,14 +277,14 @@
     gap: 15px;
 }
 
-.modal-content form {
+.modal form {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
 }
 
-.modal-content input,
-.modal-content select {
+.modal input,
+.modal select {
     padding: 10px;
     border: 1px solid var(--color-border);
     border-radius: 4px;
@@ -98,16 +292,78 @@
 
 .modal-actions {
     display: flex;
-    justify-content: space-between;
-    margin-top: 10px;
+    justify-content: flex-end;
+    gap: 10px;
 }
 
+.modal .primary {
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.modal .cancel {
+    background-color: var(--color-background);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Notification Styles */
+.notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 15px;
+    border-radius: 4px;
+    color: white;
+    z-index: 1100;
+    transition: opacity 0.5s ease;
+}
+
+.notification-info {
+    background-color: var(--color-primary);
+}
+
+.notification-success {
+    background-color: var(--color-success);
+}
+
+.notification-error {
+    background-color: var(--color-error);
+}
+
+.notification.fade-out {
+    opacity: 0;
+}
+
+/* Utility Classes */
 .hidden {
     display: none !important;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    #app {
+        flex-direction: column;
+    }
+
+    #app-navigation {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    #app-navigation ul {
+        display: flex;
+        justify-content: space-around;
+    }
+
     .finance-sections {
         grid-template-columns: 1fr;
     }

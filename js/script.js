@@ -1,4 +1,92 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Navigation handling
+    const navLinks = document.querySelectorAll('#app-navigation a');
+    const sections = document.querySelectorAll('.finance-section');
+    const modalOverlay = document.getElementById('modal-overlay');
+
+    // Show the first section by default
+    function showDefaultSection() {
+        sections.forEach(section => section.style.display = 'none');
+        document.getElementById('accounts-section').style.display = 'block';
+    }
+
+    // Navigation click handler
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const sectionId = this.getAttribute('data-section') + '-section';
+            
+            // Hide all sections
+            sections.forEach(section => section.style.display = 'none');
+            
+            // Show selected section
+            const selectedSection = document.getElementById(sectionId);
+            if (selectedSection) {
+                selectedSection.style.display = 'block';
+            }
+        });
+    });
+
+    // Modal functionality
+    const modals = {
+        account: document.getElementById('account-modal'),
+        transaction: document.getElementById('transaction-modal'),
+        budget: document.getElementById('budget-modal'),
+        investment: document.getElementById('investment-modal')
+    };
+
+    const modalButtons = {
+        addAccount: document.getElementById('add-account-btn'),
+        addTransaction: document.getElementById('add-transaction-btn'),
+        addBudget: document.getElementById('add-budget-btn'),
+        addInvestment: document.getElementById('add-investment-btn')
+    };
+
+    const modalForms = {
+        account: document.getElementById('account-form'),
+        transaction: document.getElementById('transaction-form'),
+        budget: document.getElementById('budget-form'),
+        investment: document.getElementById('investment-form')
+    };
+
+    // Open modal functions
+    function openModal(modalType) {
+        modalOverlay.classList.remove('hidden');
+        modals[modalType].classList.remove('hidden');
+    }
+
+    // Close modal functions
+    function closeModal() {
+        modalOverlay.classList.add('hidden');
+        Object.values(modals).forEach(modal => modal.classList.add('hidden'));
+    }
+
+    // Attach modal open events
+    Object.keys(modalButtons).forEach(key => {
+        modalButtons[key].addEventListener('click', () => {
+            const modalType = key.replace('add', '').toLowerCase();
+            openModal(modalType);
+        });
+    });
+
+    // Attach modal close events
+    document.querySelectorAll('.modal .cancel').forEach(cancelBtn => {
+        cancelBtn.addEventListener('click', closeModal);
+    });
+
+    // Form submission handlers (placeholder)
+    Object.keys(modalForms).forEach(key => {
+        modalForms[key].addEventListener('submit', function(e) {
+            e.preventDefault();
+            // TODO: Implement actual form submission logic
+            alert(`${key.charAt(0).toUpperCase() + key.slice(1)} form submitted`);
+            closeModal();
+        });
+    });
+
+    // Initialize with default section
+    showDefaultSection();
+
     // Utility function for showing toast notifications
     function showNotification(message, type = 'info') {
         const notification = document.createElement('div');
@@ -14,48 +102,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 3000);
     }
 
-    // Modal functionality
-    const modalOverlay = document.getElementById('modal-overlay');
-    const modals = {
-        account: document.getElementById('account-modal'),
-        budget: document.getElementById('budget-modal'),
-        transaction: document.getElementById('transaction-modal'),
-        investment: document.getElementById('investment-modal')
-    };
-
-    const buttons = {
-        addAccount: document.getElementById('add-account-btn'),
-        addBudget: document.getElementById('add-budget-btn'),
-        addTransaction: document.getElementById('add-transaction-btn'),
-        addInvestment: document.getElementById('add-investment-btn')
-    };
-
-    const forms = {
-        account: document.getElementById('account-form'),
-        budget: document.getElementById('budget-form'),
-        transaction: document.getElementById('transaction-form'),
-        investment: document.getElementById('investment-form')
-    };
-
-    const lists = {
-        accounts: document.getElementById('accounts-list'),
-        budgets: document.getElementById('budgets-list'),
-        transactions: document.getElementById('transactions-list'),
-        investments: document.getElementById('investments-list')
-    };
-
-    // Open modal functions
-    function openModal(modalType) {
-        modalOverlay.classList.remove('hidden');
-        modals[modalType].classList.remove('hidden');
-    }
-
-    // Close modal functions
-    function closeModal() {
-        modalOverlay.classList.add('hidden');
-        Object.values(modals).forEach(modal => modal.classList.add('hidden'));
-    }
-
     // Fetch and display accounts
     function fetchAccounts() {
         fetch(OC.generateUrl('apps/finance_tracker/accounts'))
@@ -66,11 +112,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(accounts => {
-                lists.accounts.innerHTML = ''; // Clear existing accounts
+                const accountsList = document.getElementById('accounts-list');
+                accountsList.innerHTML = ''; // Clear existing accounts
                 if (accounts.length === 0) {
                     const noAccountsMessage = document.createElement('p');
                     noAccountsMessage.textContent = 'No accounts found. Add your first account!';
-                    lists.accounts.appendChild(noAccountsMessage);
+                    accountsList.appendChild(noAccountsMessage);
                     return;
                 }
                 accounts.forEach(account => {
@@ -81,7 +128,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <span>${account.type}</span>
                         <span>$${account.balance.toFixed(2)}</span>
                     `;
-                    lists.accounts.appendChild(accountElement);
+                    accountsList.appendChild(accountElement);
                 });
             })
             .catch(error => {
@@ -100,11 +147,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(budgets => {
-                lists.budgets.innerHTML = ''; // Clear existing budgets
+                const budgetsList = document.getElementById('budgets-list');
+                budgetsList.innerHTML = ''; // Clear existing budgets
                 if (budgets.length === 0) {
                     const noBudgetsMessage = document.createElement('p');
                     noBudgetsMessage.textContent = 'No budgets found. Create your first budget!';
-                    lists.budgets.appendChild(noBudgetsMessage);
+                    budgetsList.appendChild(noBudgetsMessage);
                     return;
                 }
                 budgets.forEach(budget => {
@@ -116,7 +164,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <span>$${budget.amount.toFixed(2)}</span>
                         <span>${new Date(budget.startDate).toLocaleDateString()} - ${new Date(budget.endDate).toLocaleDateString()}</span>
                     `;
-                    lists.budgets.appendChild(budgetElement);
+                    budgetsList.appendChild(budgetElement);
                 });
             })
             .catch(error => {
@@ -135,11 +183,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(transactions => {
-                lists.transactions.innerHTML = ''; // Clear existing transactions
+                const transactionsList = document.getElementById('transactions-list');
+                transactionsList.innerHTML = ''; // Clear existing transactions
                 if (transactions.length === 0) {
                     const noTransactionsMessage = document.createElement('p');
                     noTransactionsMessage.textContent = 'No transactions found.';
-                    lists.transactions.appendChild(noTransactionsMessage);
+                    transactionsList.appendChild(noTransactionsMessage);
                     return;
                 }
                 transactions.forEach(transaction => {
@@ -150,7 +199,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <span>${transaction.type}</span>
                         <span>$${transaction.amount.toFixed(2)}</span>
                     `;
-                    lists.transactions.appendChild(transactionElement);
+                    transactionsList.appendChild(transactionElement);
                 });
             })
             .catch(error => {
@@ -169,11 +218,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(investments => {
-                lists.investments.innerHTML = ''; // Clear existing investments
+                const investmentsList = document.getElementById('investments-list');
+                investmentsList.innerHTML = ''; // Clear existing investments
                 if (investments.length === 0) {
                     const noInvestmentsMessage = document.createElement('p');
                     noInvestmentsMessage.textContent = 'No investments found.';
-                    lists.investments.appendChild(noInvestmentsMessage);
+                    investmentsList.appendChild(noInvestmentsMessage);
                     return;
                 }
                 investments.forEach(investment => {
@@ -185,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <span>Shares: ${investment.shares}</span>
                         <span>Purchase Price: $${investment.purchasePrice.toFixed(2)}</span>
                     `;
-                    lists.investments.appendChild(investmentElement);
+                    investmentsList.appendChild(investmentElement);
                 });
             })
             .catch(error => {
@@ -194,26 +244,8 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // Event listeners for opening modals
-    buttons.addAccount.addEventListener('click', () => openModal('account'));
-    buttons.addBudget.addEventListener('click', () => openModal('budget'));
-    buttons.addTransaction.addEventListener('click', () => openModal('transaction'));
-    buttons.addInvestment.addEventListener('click', () => openModal('investment'));
-
-    // Event listeners for cancel buttons
-    document.querySelectorAll('.cancel-btn').forEach(btn => {
-        btn.addEventListener('click', closeModal);
-    });
-
-    // Close modal when clicking outside
-    modalOverlay.addEventListener('click', function(event) {
-        if (event.target === modalOverlay) {
-            closeModal();
-        }
-    });
-
     // Account form submission
-    forms.account.addEventListener('submit', function(event) {
+    document.getElementById('account-form').addEventListener('submit', function(event) {
         event.preventDefault();
         const accountName = document.getElementById('account-name').value;
         const accountType = document.getElementById('account-type').value;
@@ -249,7 +281,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Budget form submission
-    forms.budget.addEventListener('submit', function(event) {
+    document.getElementById('budget-form').addEventListener('submit', function(event) {
         event.preventDefault();
         const budgetName = document.getElementById('budget-name').value;
         const budgetAmount = document.getElementById('budget-amount').value;
@@ -289,7 +321,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Transaction form submission
-    forms.transaction.addEventListener('submit', function(event) {
+    document.getElementById('transaction-form').addEventListener('submit', function(event) {
         event.preventDefault();
         const description = document.getElementById('transaction-description').value;
         const amount = document.getElementById('transaction-amount').value;
@@ -326,7 +358,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Investment form submission
-    forms.investment.addEventListener('submit', function(event) {
+    document.getElementById('investment-form').addEventListener('submit', function(event) {
         event.preventDefault();
         const name = document.getElementById('investment-name').value;
         const ticker = document.getElementById('investment-ticker').value;
@@ -362,9 +394,166 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // CSV Upload Functionality
+    function setupCSVUpload() {
+        const csvUploadBtn = document.getElementById('csv-upload-btn');
+        const csvUploadInput = document.getElementById('csv-upload-input');
+
+        // Trigger file input when upload button is clicked
+        csvUploadBtn.addEventListener('click', () => {
+            csvUploadInput.click();
+        });
+
+        // Handle file selection
+        csvUploadInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                if (file.type !== 'text/csv') {
+                    showNotification('Please upload a valid CSV file', 'error');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('csvFile', file);
+
+                // Send CSV to server for processing
+                fetch(OC.generateUrl('apps/finance_tracker/transactions/upload-csv'), {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('CSV upload failed');
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    showNotification(`Uploaded ${result.transactionsAdded} transactions`, 'success');
+                    // Refresh transactions list
+                    fetchTransactions();
+                })
+                .catch(error => {
+                    console.error('CSV Upload Error:', error);
+                    showNotification('Failed to upload CSV', 'error');
+                });
+            }
+        });
+    }
+
+    // Transaction Filtering
+    function setupTransactionFilters() {
+        const accountFilter = document.getElementById('transaction-account-filter');
+        const categoryFilter = document.getElementById('transaction-category-filter');
+        const startDateFilter = document.getElementById('transaction-start-date');
+        const endDateFilter = document.getElementById('transaction-end-date');
+
+        // Populate account filter dynamically
+        function populateAccountFilter() {
+            fetch(OC.generateUrl('apps/finance_tracker/accounts'))
+                .then(response => response.json())
+                .then(accounts => {
+                    accountFilter.innerHTML = '<option value="">All Accounts</option>';
+                    accounts.forEach(account => {
+                        const option = document.createElement('option');
+                        option.value = account.id;
+                        option.textContent = account.name;
+                        accountFilter.appendChild(option);
+                    });
+                });
+        }
+
+        // Apply filters to transactions
+        function applyTransactionFilters() {
+            const filters = {
+                accountId: accountFilter.value,
+                category: categoryFilter.value,
+                startDate: startDateFilter.value,
+                endDate: endDateFilter.value
+            };
+
+            fetch(OC.generateUrl('apps/finance_tracker/transactions'), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(filters)
+            })
+            .then(response => response.json())
+            .then(transactions => {
+                renderTransactions(transactions);
+                updateTransactionSummary(transactions);
+            })
+            .catch(error => {
+                console.error('Transaction Filter Error:', error);
+                showNotification('Failed to filter transactions', 'error');
+            });
+        }
+
+        // Render transactions with additional details
+        function renderTransactions(transactions) {
+            const transactionsList = document.querySelector('.transactions-list');
+            transactionsList.innerHTML = '';
+
+            if (transactions.length === 0) {
+                const noTransactionsMessage = document.createElement('p');
+                noTransactionsMessage.textContent = 'No transactions found.';
+                transactionsList.appendChild(noTransactionsMessage);
+                return;
+            }
+
+            transactions.forEach(transaction => {
+                const transactionElement = document.createElement('div');
+                transactionElement.classList.add('transaction-item');
+                transactionElement.innerHTML = `
+                    <div class="transaction-details">
+                        <span class="transaction-date">${new Date(transaction.date).toLocaleDateString()}</span>
+                        <span class="transaction-description">${transaction.description}</span>
+                        <span class="transaction-category">${transaction.category}</span>
+                        <span class="transaction-amount ${transaction.type === 'income' ? 'income' : 'expense'}">
+                            ${transaction.type === 'income' ? '+' : '-'}$${transaction.amount.toFixed(2)}
+                        </span>
+                    </div>
+                `;
+                transactionsList.appendChild(transactionElement);
+            });
+        }
+
+        // Update transaction summary
+        function updateTransactionSummary(transactions) {
+            const totalIncomeEl = document.getElementById('total-income');
+            const totalExpensesEl = document.getElementById('total-expenses');
+            const netBalanceEl = document.getElementById('net-balance');
+
+            const totalIncome = transactions
+                .filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + t.amount, 0);
+
+            const totalExpenses = transactions
+                .filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + t.amount, 0);
+
+            const netBalance = totalIncome - totalExpenses;
+
+            totalIncomeEl.textContent = `$${totalIncome.toFixed(2)}`;
+            totalExpensesEl.textContent = `$${totalExpenses.toFixed(2)}`;
+            netBalanceEl.textContent = `$${netBalance.toFixed(2)}`;
+        }
+
+        // Event listeners for filters
+        [accountFilter, categoryFilter, startDateFilter, endDateFilter].forEach(el => {
+            el.addEventListener('change', applyTransactionFilters);
+        });
+
+        // Initial setup
+        populateAccountFilter();
+    }
+
     // Initial fetches
     fetchAccounts();
     fetchBudgets();
     fetchTransactions();
     fetchInvestments();
+
+    setupCSVUpload();
+    setupTransactionFilters();
 });
