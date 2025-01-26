@@ -23,6 +23,13 @@
         <nextcloud min-version="24" max-version="30"/>
         <php min-version="8.1"/>
     </dependencies>
+    <navigations>
+        <navigation>
+            <name>Finance Tracker</name>
+            <route>finance_tracker.page.index</route>
+            <icon>app.svg</icon>
+        </navigation>
+    </navigations>
     <migrations>
         <migration>OCA\FinanceTracker\Migrations\Version20250122000000</migration>
     </migrations>
