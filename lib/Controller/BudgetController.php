@@ -38,10 +38,10 @@ class BudgetController extends Controller {
     public function create($name, $amount, $category, $startDate, $endDate) {
         try {
             $budget = $this->budgetMapper->create(
+                $this->userId,
                 $name, 
                 floatval($amount), 
                 $category, 
-                $this->userId,
                 new \DateTime($startDate),
                 new \DateTime($endDate)
             );
@@ -50,6 +50,44 @@ class BudgetController extends Controller {
             return new DataResponse([
                 'message' => $e->getMessage()
             ], Http::STATUS_BAD_REQUEST);
+        }
+    }
+
+    /**
+     * @NoAdminRequired
+     */
+    public function update($id, $name = null, $amount = null, $category = null, $startDate = null, $endDate = null) {
+        try {
+            $budget = $this->budgetMapper->find($id);
+            
+            if ($name !== null) $budget->setName($name);
+            if ($amount !== null) $budget->setAmount(floatval($amount));
+            if ($category !== null) $budget->setCategory($category);
+            if ($startDate !== null) $budget->setStartDate(new \DateTime($startDate));
+            if ($endDate !== null) $budget->setEndDate(new \DateTime($endDate));
+            
+            return new DataResponse(
+                $this->budgetMapper->update($budget)
+            );
+        } catch (\Exception $e) {
+            return new DataResponse([
+                'message' => $e->getMessage()
+            ], Http::STATUS_BAD_REQUEST);
+        }
+    }
+
+    /**
+     * @NoAdminRequired
+     */
+    public function destroy($id) {
+        try {
+            $budget = $this->budgetMapper->find($id);
+            $this->budgetMapper->delete($budget);
+            return new DataResponse(null, Http::STATUS_NO_CONTENT);
+        } catch (\Exception $e) {
+            return new DataResponse([
+                'message' => $e->getMessage()
+            ], Http::STATUS_NOT_FOUND);
         }
     }
 }

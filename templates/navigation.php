@@ -1,27 +1,32 @@
-<ul class="with-icon">
+<ul>
     <li>
-        <a href="#" class="nav-icon-accounts icon-category-monitoring" data-section="accounts">
-            <?php p($l->t('Accounts')); ?>
+        <a href="#" data-section="accounts" class="active">
+            <i class="fa fa-wallet"></i>
+            <span><?php p($l->t('Accounts')); ?></span>
         </a>
     </li>
     <li>
-        <a href="#" class="nav-icon-transactions icon-category-office" data-section="transactions">
-            <?php p($l->t('Transactions')); ?>
+        <a href="#" data-section="transactions">
+            <i class="fa fa-money-check"></i>
+            <span><?php p($l->t('Transactions')); ?></span>
         </a>
     </li>
     <li>
-        <a href="#" class="nav-icon-budgets icon-category-organization" data-section="budgets">
-            <?php p($l->t('Budgets')); ?>
+        <a href="#" data-section="budgets">
+            <i class="fa fa-chart-pie"></i>
+            <span><?php p($l->t('Budgets')); ?></span>
         </a>
     </li>
     <li>
-        <a href="#" class="nav-icon-investments icon-category-integration" data-section="investments">
-            <?php p($l->t('Investments')); ?>
+        <a href="#" data-section="investments">
+            <i class="fa fa-chart-line"></i>
+            <span><?php p($l->t('Investments')); ?></span>
         </a>
     </li>
     <li>
-        <a href="#" class="nav-icon-reports icon-category-analytics" data-section="reports">
-            <?php p($l->t('Reports')); ?>
+        <a href="#" data-section="reports">
+            <i class="fa fa-chart-bar"></i>
+            <span><?php p($l->t('Reports')); ?></span>
         </a>
     </li>
 </ul>

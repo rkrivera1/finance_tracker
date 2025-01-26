@@ -16,49 +16,108 @@
     height: 100%;
 }
 
+/* Sidebar Navigation Styling */
 #app-navigation {
     width: 250px;
-    background-color: var(--color-background);
-    border-right: 1px solid var(--color-border);
-    padding: 20px;
+    background-color: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    transition: all 0.3s ease;
 }
 
 #app-navigation ul {
     list-style-type: none;
     padding: 0;
+    margin: 0;
 }
 
-#app-navigation a {
+#app-navigation ul li {
+    margin: 0;
+}
+
+#app-navigation ul li a {
     display: flex;
     align-items: center;
-    padding: 10px 15px;
-    color: var(--color-text);
+    padding: 12px 20px;
+    color: #495057;
     text-decoration: none;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border-left: 4px solid transparent;
 }
 
-#app-navigation a:hover,
-#app-navigation a.active {
-    background-color: var(--color-primary-light);
+#app-navigation ul li a:hover {
+    background-color: #e9ecef;
+    color: #212529;
+    border-left-color: #007bff;
 }
 
-#app-navigation a::before {
-    content: '';
-    display: inline-block;
-    width: 24px;
-    height: 24px;
-    margin-right: 10px;
-    background-size: cover;
-    background-repeat: no-repeat;
+#app-navigation ul li a.active {
+    background-color: #e9ecef;
+    color: #007bff;
+    border-left-color: #007bff;
+    font-weight: 600;
 }
 
-#app-navigation a.nav-icon-accounts::before {
-    background-image: url('path/to/accounts-icon.svg');
+#app-navigation ul li a i,
+#app-navigation ul li a .icon {
+    margin-right: 12px;
+    font-size: 18px;
+    color: #6c757d;
+    transition: color 0.2s ease;
 }
 
-#app-navigation a.nav-icon-transactions::before {
-    background-image: url('path/to/transactions-icon.svg');
+#app-navigation ul li a:hover i,
+#app-navigation ul li a:hover .icon {
+    color: #007bff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #app-navigation {
+        width: 70px;
+        overflow: hidden;
+    }
+    
+    #app-navigation ul li a span {
+        display: none;
+    }
+    
+    #app-navigation ul li a {
+        justify-content: center;
+    }
+}
+
+/* Add some subtle animations */
+#app-navigation {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+#app-navigation.hidden {
+    transform: translateX(-100%);
+    opacity: 0;
+}
+
+/* Icons for different sections */
+#app-navigation a[data-section="accounts"] i::before {
+    content: "\f19c"; /* Font Awesome wallet icon */
+}
+
+#app-navigation a[data-section="transactions"] i::before {
+    content: "\f0d6"; /* Font Awesome money check icon */
+}
+
+#app-navigation a[data-section="budgets"] i::before {
+    content: "\f0e4"; /* Font Awesome chart pie icon */
+}
+
+#app-navigation a[data-section="investments"] i::before {
+    content: "\f201"; /* Font Awesome line chart icon */
+}
+
+#app-navigation a[data-section="reports"] i::before {
+    content: "\f080"; /* Font Awesome chart bar icon */
 }
 
 #app-content {

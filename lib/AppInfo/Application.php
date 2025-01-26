@@ -17,6 +17,9 @@ use OCA\FinanceTracker\Db\BudgetMapper;
 use OCA\FinanceTracker\Db\TransactionMapper;
 use OCA\FinanceTracker\Db\InvestmentMapper;
 
+use OCP\INavigationManager;
+use OCP\IURLGenerator;
+
 class Application extends App implements IBootstrap {
     public const APP_ID = 'finance_tracker';
 
@@ -96,11 +99,16 @@ class Application extends App implements IBootstrap {
     }
 
     public function boot(IBootContext $context): void {
-        // Optional: Add any boot-time logic here
-        $context->injectFn(function(
-            \OCP\IServerContainer $serverContainer
-        ) {
-            // Any additional initialization can go here
+        $container = $this->getContainer();
+        $container->query(INavigationManager::class)->add(function () use ($container) {
+            $urlGenerator = $container->query(IURLGenerator::class);
+            return [
+                'id' => self::APP_ID,
+                'order' => 10,
+                'href' => $urlGenerator->linkToRoute(self::APP_ID . '.page.index'),
+                'icon' => $urlGenerator->imagePath(self::APP_ID, 'app.svg'),
+                'name' => 'Finance Tracker',
+            ];
         });
     }
 }

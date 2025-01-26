@@ -7,7 +7,7 @@
     <description>Track your finances easily within Nextcloud</description>
     <version>1.0.0</version>
     <licence>agpl</licence>
-    <author>Your Name</author>
+    <author>Juan Rivera</author>
     <namespace>FinanceTracker</namespace>
     <category>finance</category>
     <dependencies>

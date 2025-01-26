@@ -102,145 +102,187 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 3000);
     }
 
-    // Fetch and display accounts
+    // Fetch and display accounts with detailed error handling
     function fetchAccounts() {
-        fetch(OC.generateUrl('apps/finance_tracker/accounts'))
+        const url = OC.generateUrl('/apps/finance_tracker/accounts');
+        console.log('Fetching accounts from:', url);
+        
+        fetch(url)
             .then(response => {
+                console.log('Accounts response status:', response.status);
                 if (!response.ok) {
-                    throw new Error('Failed to fetch accounts');
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 return response.json();
             })
             .then(accounts => {
+                console.log('Accounts fetched:', accounts);
                 const accountsList = document.getElementById('accounts-list');
                 accountsList.innerHTML = ''; // Clear existing accounts
+
                 if (accounts.length === 0) {
                     const noAccountsMessage = document.createElement('p');
                     noAccountsMessage.textContent = 'No accounts found. Add your first account!';
                     accountsList.appendChild(noAccountsMessage);
                     return;
                 }
+
                 accounts.forEach(account => {
                     const accountElement = document.createElement('div');
                     accountElement.classList.add('account-item');
                     accountElement.innerHTML = `
-                        <strong>${account.name}</strong>
-                        <span>${account.type}</span>
-                        <span>$${account.balance.toFixed(2)}</span>
+                        <div class="account-details">
+                            <span class="account-name">${account.name}</span>
+                            <span class="account-type">${account.type}</span>
+                            <span class="account-balance">$${account.balance.toFixed(2)}</span>
+                        </div>
                     `;
                     accountsList.appendChild(accountElement);
                 });
             })
             .catch(error => {
-                console.error('Error fetching accounts:', error);
-                showNotification('Failed to load accounts', 'error');
+                console.error('Detailed Account Fetch Error:', error);
+                showNotification(`Failed to load accounts: ${error.message}`, 'error');
             });
     }
 
-    // Fetch and display budgets
+    // Fetch and display budgets with detailed error handling
     function fetchBudgets() {
-        fetch(OC.generateUrl('apps/finance_tracker/budgets'))
+        const url = OC.generateUrl('/apps/finance_tracker/budgets');
+        console.log('Fetching budgets from:', url);
+        
+        fetch(url)
             .then(response => {
+                console.log('Budgets response status:', response.status);
                 if (!response.ok) {
-                    throw new Error('Failed to fetch budgets');
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 return response.json();
             })
             .then(budgets => {
+                console.log('Budgets fetched:', budgets);
                 const budgetsList = document.getElementById('budgets-list');
                 budgetsList.innerHTML = ''; // Clear existing budgets
+
                 if (budgets.length === 0) {
                     const noBudgetsMessage = document.createElement('p');
                     noBudgetsMessage.textContent = 'No budgets found. Create your first budget!';
                     budgetsList.appendChild(noBudgetsMessage);
                     return;
                 }
+
                 budgets.forEach(budget => {
                     const budgetElement = document.createElement('div');
                     budgetElement.classList.add('budget-item');
                     budgetElement.innerHTML = `
-                        <strong>${budget.name}</strong>
-                        <span>${budget.category}</span>
-                        <span>$${budget.amount.toFixed(2)}</span>
-                        <span>${new Date(budget.startDate).toLocaleDateString()} - ${new Date(budget.endDate).toLocaleDateString()}</span>
+                        <div class="budget-details">
+                            <span class="budget-name">${budget.name}</span>
+                            <span class="budget-category">${budget.category}</span>
+                            <span class="budget-amount">$${budget.amount.toFixed(2)}</span>
+                            <span class="budget-period">
+                                ${new Date(budget.startDate).toLocaleDateString()} - 
+                                ${new Date(budget.endDate).toLocaleDateString()}
+                            </span>
+                        </div>
                     `;
                     budgetsList.appendChild(budgetElement);
                 });
             })
             .catch(error => {
-                console.error('Error fetching budgets:', error);
-                showNotification('Failed to load budgets', 'error');
+                console.error('Detailed Budget Fetch Error:', error);
+                showNotification(`Failed to load budgets: ${error.message}`, 'error');
             });
     }
 
-    // Fetch and display transactions
+    // Fetch and display transactions with detailed error handling
     function fetchTransactions() {
-        fetch(OC.generateUrl('apps/finance_tracker/transactions'))
+        const url = OC.generateUrl('/apps/finance_tracker/transactions');
+        console.log('Fetching transactions from:', url);
+        
+        fetch(url)
             .then(response => {
+                console.log('Transactions response status:', response.status);
                 if (!response.ok) {
-                    throw new Error('Failed to fetch transactions');
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 return response.json();
             })
             .then(transactions => {
-                const transactionsList = document.getElementById('transactions-list');
+                console.log('Transactions fetched:', transactions);
+                const transactionsList = document.querySelector('.transactions-list');
                 transactionsList.innerHTML = ''; // Clear existing transactions
+
                 if (transactions.length === 0) {
                     const noTransactionsMessage = document.createElement('p');
                     noTransactionsMessage.textContent = 'No transactions found.';
                     transactionsList.appendChild(noTransactionsMessage);
                     return;
                 }
+
                 transactions.forEach(transaction => {
                     const transactionElement = document.createElement('div');
                     transactionElement.classList.add('transaction-item');
                     transactionElement.innerHTML = `
-                        <strong>${transaction.description}</strong>
-                        <span>${transaction.type}</span>
-                        <span>$${transaction.amount.toFixed(2)}</span>
+                        <div class="transaction-details">
+                            <span class="transaction-date">${new Date(transaction.date).toLocaleDateString()}</span>
+                            <span class="transaction-description">${transaction.description}</span>
+                            <span class="transaction-category">${transaction.category}</span>
+                            <span class="transaction-amount ${transaction.type === 'income' ? 'income' : 'expense'}">
+                                ${transaction.type === 'income' ? '+' : '-'}$${transaction.amount.toFixed(2)}
+                            </span>
+                        </div>
                     `;
                     transactionsList.appendChild(transactionElement);
                 });
             })
             .catch(error => {
-                console.error('Error fetching transactions:', error);
-                showNotification('Failed to load transactions', 'error');
+                console.error('Detailed Transaction Fetch Error:', error);
+                showNotification(`Failed to load transactions: ${error.message}`, 'error');
             });
     }
 
-    // Fetch and display investments
+    // Fetch and display investments with detailed error handling
     function fetchInvestments() {
-        fetch(OC.generateUrl('apps/finance_tracker/investments'))
+        const url = OC.generateUrl('/apps/finance_tracker/investments');
+        console.log('Fetching investments from:', url);
+        
+        fetch(url)
             .then(response => {
+                console.log('Investments response status:', response.status);
                 if (!response.ok) {
-                    throw new Error('Failed to fetch investments');
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 return response.json();
             })
             .then(investments => {
-                const investmentsList = document.getElementById('investments-list');
+                console.log('Investments fetched:', investments);
+                const investmentsList = document.querySelector('.investments-list');
                 investmentsList.innerHTML = ''; // Clear existing investments
+
                 if (investments.length === 0) {
                     const noInvestmentsMessage = document.createElement('p');
                     noInvestmentsMessage.textContent = 'No investments found.';
                     investmentsList.appendChild(noInvestmentsMessage);
                     return;
                 }
+
                 investments.forEach(investment => {
                     const investmentElement = document.createElement('div');
                     investmentElement.classList.add('investment-item');
                     investmentElement.innerHTML = `
-                        <strong>${investment.name}</strong>
-                        <span>Ticker: ${investment.ticker}</span>
-                        <span>Shares: ${investment.shares}</span>
-                        <span>Purchase Price: $${investment.purchasePrice.toFixed(2)}</span>
+                        <div class="investment-details">
+                            <span class="investment-name">${investment.name}</span>
+                            <span class="investment-ticker">${investment.ticker || 'N/A'}</span>
+                            <span class="investment-shares">Shares: ${investment.shares}</span>
+                            <span class="investment-price">Purchase Price: $${investment.purchasePrice.toFixed(2)}</span>
+                        </div>
                     `;
                     investmentsList.appendChild(investmentElement);
                 });
             })
             .catch(error => {
-                console.error('Error fetching investments:', error);
-                showNotification('Failed to load investments', 'error');
+                console.error('Detailed Investment Fetch Error:', error);
+                showNotification(`Failed to load investments: ${error.message}`, 'error');
             });
     }
 
