@@ -30,6 +30,37 @@ style('finance_tracker', 'style');
                 </a>
             </li>
         </ul>
+
+        <div id="app-settings">
+            <div id="app-settings-header">
+                <button class="settings-button" data-apps-slide-toggle="#app-settings-content">
+                    <?php p($l->t('Settings')); ?>
+                </button>
+            </div>
+            <div id="app-settings-content" class="hidden">
+                <div class="settings-section">
+                    <h3><?php p($l->t('API Configuration')); ?></h3>
+                    <form id="api-settings-form">
+                        <p>
+                            <label for="stock-api-key">
+                                <?php p($l->t('Stock API Key')); ?>
+                            </label>
+                            <input type="password" id="stock-api-key" name="stock-api-key" />
+                        </p>
+                        <p>
+                            <label for="stock-api-provider">
+                                <?php p($l->t('API Provider')); ?>
+                            </label>
+                            <select id="stock-api-provider" name="stock-api-provider">
+                                <option value="alphavantage">Alpha Vantage</option>
+                                <option value="finnhub">Finnhub</option>
+                            </select>
+                        </p>
+                        <input type="submit" value="<?php p($l->t('Save')); ?>" />
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="app-content" class="app-content">
@@ -109,6 +140,9 @@ style('finance_tracker', 'style');
                             <?php p($l->t('Add Budget')); ?>
                         </button>
                     </div>
+                    <div id="budget-list">
+                        <!-- Budget entries will be dynamically populated -->
+                    </div>
                 </div>
             </section>
         </div>
@@ -183,67 +217,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const initialHash = window.location.hash.substring(1);
         activateSection(initialHash || 'dashboard');
 
-        // Stock Search Functionality
-        const stockSearchBtn = document.getElementById('stock-search-btn');
-        const stockSearchInput = document.getElementById('stock-search-input');
-        const stockSearchResults = document.getElementById('stock-search-results');
-
-        stockSearchBtn.addEventListener('click', function() {
-            const searchTerm = stockSearchInput.value.trim();
-            if (!searchTerm) {
-                showNotification('Please enter a stock symbol or company name', 'error');
-                return;
-            }
-
-            showLoading(stockSearchBtn);
-            stockSearchResults.classList.remove('hidden');
-
-            // Simulated API call (replace with actual API integration)
-            setTimeout(() => {
-                hideLoading(stockSearchBtn);
-                const resultsBody = document.getElementById('stock-search-results-body');
-                
-                // Check if results exist
-                if (Math.random() > 0.5) {
-                    resultsBody.innerHTML = `
-                        <tr>
-                            <td>AAPL</td>
-                            <td>Apple Inc.</td>
-                            <td>$175.23</td>
-                            <td>+0.5%</td>
-                            <td>Strong</td>
-                            <td>25M</td>
-                            <td>
-                                <button class="btn btn-small stock-add-btn" data-symbol="AAPL">Add</button>
-                            </td>
-                        </tr>
-                    `;
-                    showNotification('Stock search completed successfully');
-                } else {
-                    resultsBody.innerHTML = `
-                        <tr>
-                            <td colspan="7" class="no-results">No stocks found matching your search</td>
-                        </tr>
-                    `;
-                    showNotification('No stocks found', 'warning');
-                }
-
-                // Add event listeners to "Add" buttons
-                document.querySelectorAll('.stock-add-btn').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const symbol = this.getAttribute('data-symbol');
-                        showNotification(`Added ${symbol} to watchlist`);
-                        this.disabled = true;
-                        this.textContent = 'Added';
-                    });
-                });
-            }, 1000);
-        });
-
         // Transaction Search and Filtering
         const transactionSearchBtn = document.getElementById('search-transactions-btn');
         const transactionSearchInput = document.getElementById('transactions-search-input');
-        const transactionsTable = document.getElementById('transactions-table-body');
+        const transactionsTable = document.getElementById('transactions-list');
         const transactionFilters = {
             account: document.getElementById('transaction-account-filter'),
             category: document.getElementById('transaction-category-filter'),
@@ -337,7 +314,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const addTransactionBtn = document.getElementById('add-transaction-btn');
         if (addTransactionBtn) {
             addTransactionBtn.addEventListener('click', function() {
-                // Open transaction modal or form
                 const transactionModal = document.getElementById('transaction-modal');
                 if (transactionModal) {
                     transactionModal.classList.remove('hidden');
@@ -346,6 +322,76 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
+        // Stock Search Functionality
+        const stockSearchBtn = document.getElementById('stock-search-btn');
+        const stockSearchInput = document.getElementById('stock-search-input');
+        const stockSearchResults = document.getElementById('investments-list');
+
+        stockSearchBtn.addEventListener('click', function() {
+            const searchTerm = stockSearchInput.value.trim();
+            if (!searchTerm) {
+                showNotification('Please enter a stock symbol or company name', 'error');
+                return;
+            }
+
+            showLoading(stockSearchBtn);
+            stockSearchResults.classList.remove('hidden');
+
+            // Simulated API call (replace with actual API integration)
+            setTimeout(() => {
+                hideLoading(stockSearchBtn);
+                
+                // Check if results exist
+                if (Math.random() > 0.5) {
+                    stockSearchResults.innerHTML = `
+                        <div class="stock-result">
+                            <h3>Search Results for ${searchTerm}</h3>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Symbol</th>
+                                        <th>Company</th>
+                                        <th>Price</th>
+                                        <th>Change</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>AAPL</td>
+                                        <td>Apple Inc.</td>
+                                        <td>$175.23</td>
+                                        <td>+0.5%</td>
+                                        <td>
+                                            <button class="btn btn-small stock-add-btn" data-symbol="AAPL">Add to Portfolio</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                    showNotification('Stock search completed successfully');
+                } else {
+                    stockSearchResults.innerHTML = `
+                        <div class="no-results">
+                            <p>No stocks found matching your search</p>
+                        </div>
+                    `;
+                    showNotification('No stocks found', 'warning');
+                }
+
+                // Add event listeners to "Add" buttons
+                document.querySelectorAll('.stock-add-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const symbol = this.getAttribute('data-symbol');
+                        showNotification(`Added ${symbol} to portfolio`);
+                        this.disabled = true;
+                        this.textContent = 'Added';
+                    });
+                });
+            }, 1000);
+        });
+
         // Budget Management
         const addBudgetBtn = document.getElementById('add-budget-btn');
         if (addBudgetBtn) {
@@ -353,17 +399,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 const budgetPeriod = document.getElementById('budget-period').value;
                 const budgetMonth = document.getElementById('budget-month').value;
                 
+                // Create budget section
+                const budgetList = document.getElementById('budget-list');
+                if (budgetList) {
+                    const newBudgetEntry = document.createElement('div');
+                    newBudgetEntry.classList.add('budget-entry');
+                    newBudgetEntry.innerHTML = `
+                        <h4>Budget for ${budgetMonth} (${budgetPeriod})</h4>
+                        <div class="budget-details">
+                            <p>Total Budget: $2000</p>
+                            <p>Spent: $500</p>
+                            <p>Remaining: $1500</p>
+                        </div>
+                    `;
+                    budgetList.appendChild(newBudgetEntry);
+                }
+                
                 showNotification(`Preparing to add ${budgetPeriod} budget for ${budgetMonth}`);
-                // TODO: Open budget creation modal or form
-            });
-        }
-
-        // Investment Add Button
-        const addInvestmentBtn = document.getElementById('add-investment-btn');
-        if (addInvestmentBtn) {
-            addInvestmentBtn.addEventListener('click', function() {
-                showNotification('Open investment addition form');
-                // TODO: Open investment addition modal or form
             });
         }
 
