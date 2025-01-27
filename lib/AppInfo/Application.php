@@ -6,6 +6,10 @@ use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 
+use OCP\IRequest;
+use OCP\IDBConnection;
+use OCP\IUserSession;
+
 use OCA\FinanceTracker\Controller\PageController;
 use OCA\FinanceTracker\Controller\AccountController;
 use OCA\FinanceTracker\Controller\BudgetController;
@@ -26,125 +30,106 @@ class Application extends App implements IBootstrap {
     public const APP_ID = 'finance_tracker';
 
     public function __construct(array $urlParams = []) {
-        // Multiple potential autoload paths
-        $autoloadPaths = [
-            __DIR__ . '/../../vendor/autoload.php',
-            __DIR__ . '/../../../vendor/autoload.php',
-            __DIR__ . '/vendor/autoload.php'
-        ];
-
-        $autoloadFound = false;
-        foreach ($autoloadPaths as $path) {
-            if (file_exists($path)) {
-                require_once $path;
-                $autoloadFound = true;
-                break;
-            }
-        }
-
-        if (!$autoloadFound) {
-            // Log the failure and provide a helpful error message
-            \OC::$server->getLogger()->error(
-                'Composer autoload not found. Please run "composer install" in the app directory.',
-                ['app' => 'finance_tracker']
-            );
-            
-            // Optionally, you can throw a more informative exception
-            throw new \Exception(
-                'Cannot include autoload. Please run "composer install" in the finance_tracker app directory. ' . 
-                'Checked paths: ' . implode(', ', $autoloadPaths)
-            );
-        }
-
         parent::__construct(self::APP_ID, $urlParams);
     }
 
     public function register(IRegistrationContext $context): void {
-        // Register Services
+        // Simplified service registration
         $context->registerService('AccountMapper', function($c) {
-            return new AccountMapper(
-                $c->query(\OCP\IDBConnection::class)
+            return new \OCA\FinanceTracker\Db\AccountMapper(
+                $c->query(IDBConnection::class)
             );
         });
 
         $context->registerService('BudgetMapper', function($c) {
-            return new BudgetMapper(
-                $c->query(\OCP\IDBConnection::class)
+            return new \OCA\FinanceTracker\Db\BudgetMapper(
+                $c->query(IDBConnection::class)
             );
         });
 
         $context->registerService('TransactionMapper', function($c) {
-            return new TransactionMapper(
-                $c->query(\OCP\IDBConnection::class)
+            return new \OCA\FinanceTracker\Db\TransactionMapper(
+                $c->query(IDBConnection::class)
             );
         });
 
         $context->registerService('InvestmentMapper', function($c) {
-            return new InvestmentMapper(
-                $c->query(\OCP\IDBConnection::class)
+            return new \OCA\FinanceTracker\Db\InvestmentMapper(
+                $c->query(IDBConnection::class)
             );
         });
 
         // Register Controllers
         $context->registerService('PageController', function($c) {
-            return new PageController(
+            return new \OCA\FinanceTracker\Controller\PageController(
                 self::APP_ID,
-                $c->query(\OCP\IRequest::class)
+                $c->query(IRequest::class)
             );
         });
 
         $context->registerService('AccountController', function($c) {
-            return new AccountController(
+            return new \OCA\FinanceTracker\Controller\AccountController(
                 self::APP_ID,
-                $c->query(\OCP\IRequest::class),
+                $c->query(IRequest::class),
                 $c->query('AccountMapper'),
-                $c->query(\OCP\IUserSession::class)->getUser()->getUID()
+                $c->query(IUserSession::class)->getUser()->getUID()
             );
         });
 
         $context->registerService('BudgetController', function($c) {
-            return new BudgetController(
+            return new \OCA\FinanceTracker\Controller\BudgetController(
                 self::APP_ID,
-                $c->query(\OCP\IRequest::class),
+                $c->query(IRequest::class),
                 $c->query('BudgetMapper'),
-                $c->query(\OCP\IUserSession::class)->getUser()->getUID()
+                $c->query(IUserSession::class)->getUser()->getUID()
             );
         });
 
         $context->registerService('TransactionController', function($c) {
-            return new TransactionController(
+            return new \OCA\FinanceTracker\Controller\TransactionController(
                 self::APP_ID,
-                $c->query(\OCP\IRequest::class),
+                $c->query(IRequest::class),
                 $c->query('TransactionMapper'),
-                $c->query(\OCP\IUserSession::class)->getUser()->getUID()
+                $c->query(IUserSession::class)->getUser()->getUID()
             );
         });
 
         $context->registerService('InvestmentController', function($c) {
-            return new InvestmentController(
+            return new \OCA\FinanceTracker\Controller\InvestmentController(
                 self::APP_ID,
-                $c->query(\OCP\IRequest::class),
+                $c->query(IRequest::class),
                 $c->query('InvestmentMapper'),
-                $c->query(\OCP\IUserSession::class)->getUser()->getUID()
+                $c->query(IUserSession::class)->getUser()->getUID()
             );
         });
     }
 
     public function boot(IBootContext $context): void {
-        // Register navigation entry
-        $context->getAppContainer()->get(INavigationManager::class)->add(function () use ($context) {
-            $urlGenerator = $context->getAppContainer()->get(IURLGenerator::class);
-            $l10n = $context->getAppContainer()->get(IL10N::class);
+        // Simplified navigation registration
+        try {
+            $context->getAppContainer()
+                ->get(\OCP\INavigationManager::class)
+                ->add(function () use ($context) {
+                    $urlGenerator = $context->getAppContainer()->get(\OCP\IURLGenerator::class);
+                    $l10n = $context->getAppContainer()->get(\OCP\IL10N::class);
 
-            return [
-                'id' => self::APP_ID,
-                'order' => 10,
-                'href' => $urlGenerator->linkToRoute('finance_tracker.page.index'),
-                'icon' => $urlGenerator->imagePath(self::APP_ID, 'app-dark.svg'),
-                'name' => $l10n->t('Finance Tracker')
-            ];
-        });
-
-        // You can add additional boot-time configurations here
+                    return [
+                        'id' => self::APP_ID,
+                        'order' => 10,
+                        'href' => $urlGenerator->linkToRoute('finance_tracker.page.index'),
+                        'icon' => $urlGenerator->imagePath(self::APP_ID, 'app-dark.svg'),
+                        'name' => $l10n->t('Finance Tracker')
+                    ];
+                });
+        } catch (\Throwable $e) {
+            // Log any navigation registration errors
+            \OC::$server->getLogger()->error(
+                'Failed to register navigation for Finance Tracker: ' . $e->getMessage(),
+                [
+                    'app' => self::APP_ID,
+                    'exception' => $e
+                ]
+            );
+        }
     }
 }
