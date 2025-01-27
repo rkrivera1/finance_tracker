@@ -1,43 +1,90 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Nextcloud components
-    if (OCA.Files) {
-        OCA.Files.fileActions.registerAction({
-            name: 'finance',
-            displayName: t('finance_tracker', 'Finance'),
-            mime: 'application/json',
-            permissions: OC.PERMISSION_READ,
-            icon: OC.imagePath('finance_tracker', 'app-dark'),
-            actionHandler: function(fileName, context) {
-                // Handle file actions if needed
+    // Initialize settings menu
+    if (OCA.Settings) {
+        OCA.Settings.Apps.setupApps();
+    }
+
+    const contentView = document.getElementById('content-view');
+    const emptyContent = document.getElementById('emptycontent');
+
+    // Navigation handling
+    function handleNavigation(route) {
+        // Show loading state
+        contentView.innerHTML = '<div class="icon-loading"></div>';
+        
+        // Fetch content for the route
+        fetch(`/index.php/apps/finance_tracker/api/v1/${route}`, {
+            headers: {
+                'requesttoken': OC.requestToken
             }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data && Object.keys(data).length > 0) {
+                emptyContent.classList.add('hidden');
+                contentView.innerHTML = renderContent(route, data);
+            } else {
+                emptyContent.classList.remove('hidden');
+                contentView.innerHTML = '';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading content:', error);
+            contentView.innerHTML = `<div class="error">${t('finance_tracker', 'Error loading content')}</div>`;
         });
     }
 
-    // Navigation handling
-    const navItems = document.querySelectorAll('#app-navigation li a');
-    navItems.forEach(item => {
-        item.addEventListener('click', function(e) {
+    // Handle navigation clicks
+    document.querySelectorAll('#app-navigation li > a').forEach(link => {
+        link.addEventListener('click', (e) => {
             e.preventDefault();
-            const sectionId = this.getAttribute('href').substring(1);
+            const route = e.currentTarget.getAttribute('href').split('/').pop();
             
             // Update navigation state
-            navItems.forEach(nav => nav.classList.remove('active'));
-            this.classList.add('active');
-            
-            // Update sections visibility
-            document.querySelectorAll('.section').forEach(section => {
-                section.classList.toggle('active', section.id === `${sectionId}-section`);
+            document.querySelectorAll('#app-navigation li').forEach(item => {
+                item.classList.remove('active');
             });
-
-            // Update URL without page reload
-            window.history.pushState({}, '', `?view=${sectionId}`);
+            e.currentTarget.parentElement.classList.add('active');
+            
+            // Update URL and load content
+            window.history.pushState({}, '', e.currentTarget.getAttribute('href'));
+            handleNavigation(route);
         });
     });
 
-    // Initialize settings menu
-    if (typeof OC.Settings !== 'undefined') {
-        OC.Settings.setupMenus();
+    // Handle settings
+    const saveSettingsBtn = document.getElementById('save-settings');
+    if (saveSettingsBtn) {
+        saveSettingsBtn.addEventListener('click', () => {
+            const settings = {
+                stockApiKey: document.getElementById('stock-api-key').value,
+                stockApiProvider: document.getElementById('stock-api-provider').value
+            };
+
+            fetch('/index.php/apps/finance_tracker/api/v1/settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'requesttoken': OC.requestToken
+                },
+                body: JSON.stringify(settings)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    OC.Notification.showTemporary(t('finance_tracker', 'Settings saved successfully'));
+                }
+            })
+            .catch(error => {
+                console.error('Error saving settings:', error);
+                OC.Notification.showTemporary(t('finance_tracker', 'Error saving settings'));
+            });
+        });
     }
+
+    // Load initial content
+    const currentPath = window.location.pathname.split('/').pop() || 'dashboard';
+    handleNavigation(currentPath);
 
     // Modal handlers
     const modalButtons = {

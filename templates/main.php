@@ -8,29 +8,29 @@ style('finance_tracker', 'style');
         <ul>
             <li>
                 <a href="#" class="active" data-section="dashboard">
-                    <img alt="" src="/apps/finance_tracker/img/app-dark.svg" class="app-icon">
-                    <?php p($l->t('Dashboard')); ?>
+                    <span class="icon-home"></span>
+                    <span><?php p($l->t('Dashboard')); ?></span>
                 </a>
             </li>
-            <li>
-                <a href="#" data-section="transactions">
-                    <span class="icon-history"></span>
-                    <?php p($l->t('Transactions')); ?>
-                </a>
-            </li>
-            <li>
-                <a href="#" data-section="investments">
-                    <span class="icon-category-office"></span>
-                    <?php p($l->t('Investments')); ?>
-                </a>
-            </li>
-            <li>
-                <a href="#" data-section="budget">
-                    <span class="icon-category-monitoring"></span>
-                    <?php p($l->t('Budget')); ?>
-                </a>
-            </li>
-        </ul>
+        <li>
+            <a href="#" data-section="transactions">
+                <span class="icon-history"></span>
+                <span><?php p($l->t('Transactions')); ?></span>
+            </a>
+        </li>
+        <li>
+            <a href="#" data-section="investments">
+                <span class="icon-category-office"></span>
+                <span><?php p($l->t('Investments')); ?></span>
+            </a>
+        </li>
+        <li>
+            <a href="#" data-section="budget">
+                <span class="icon-category-monitoring"></span>
+                <span><?php p($l->t('Budget')); ?></span>
+            </a>
+        </li>
+    </ul>
     
     <div id="app-settings">
         <div id="app-settings-header">
@@ -39,24 +39,43 @@ style('finance_tracker', 'style');
             </button>
         </div>
         <div id="app-settings-content" class="hidden">
-            <!-- Settings content -->
+            <div class="settings-section">
+                <h3><?php p($l->t('API Configuration')); ?></h3>
+                <div class="input-field">
+                    <label for="stock-api-key"><?php p($l->t('Stock API Key')); ?></label>
+                    <input type="password" id="stock-api-key" />
+                </div>
+                <div class="input-field">
+                    <label for="stock-api-provider"><?php p($l->t('API Provider')); ?></label>
+                    <select id="stock-api-provider">
+                        <option value="alphavantage">Alpha Vantage</option>
+                        <option value="finnhub">Finnhub</option>
+                    </select>
+                </div>
+                <button id="save-api-settings" class="primary">
+                    <?php p($l->t('Save')); ?>
+                </button>
+            </div>
         </div>
     </div>
 </div>
 
 
 
+
 <div id="app-content">
-    <!-- Content sections -->
-        <!-- Empty Content Message -->
-        <div id="emptycontent" class="hidden">
+    <div id="app-content-wrapper">
+        <div id="emptycontent" class="emptycontent hidden">
             <div class="icon-folder"></div>
             <h2><?php p($l->t('No data available')); ?></h2>
             <p><?php p($l->t('Start by adding your first transaction or budget.')); ?></p>
         </div>
-
-        <!-- Content Sections -->
-        <div id="app-content-sections">
+        
+        <div id="content-view">
+            <!-- Content will be loaded here -->
+        </div>
+    </div>
+</div>
 
         <!-- Dashboard Section -->
         <div id="dashboard-section" class="section active">

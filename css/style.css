@@ -23,31 +23,43 @@
     --color-primary-element: #007bff;
 }
 
-/* Base app structure */
-.app-finance-tracker {
+/* App base structure */
+#app {
     width: 100%;
     height: 100%;
     display: flex;
-    position: relative;
 }
 
-/* Navigation styling */
+/* Navigation */
 #app-navigation {
     width: 250px;
     height: 100%;
     position: fixed;
+    top: 0;
     left: 0;
-    top: 50px; /* Leave space for Nextcloud header */
+    z-index: 500;
     background-color: var(--color-main-background);
     border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    padding-top: 44px; /* Leave space for header */
 }
 
+/* Content area */
 #app-content {
-    flex-grow: 1;
+    flex: 1;
+    min-width: 0;
     margin-left: 250px;
-    margin-top: 50px; /* Match Nextcloud header height */
-    background-color: var(--color-background);
+    margin-top: 44px; /* Leave space for header */
+    background-color: var(--color-main-background);
 }
+
+#app-content-wrapper {
+    height: 100%;
+    position: relative;
+}
+
 
 
 
@@ -132,27 +144,33 @@
     width: inherit;
     overflow: auto;
     box-sizing: border-box;
-    padding-bottom: 44px;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
 }
 
 #app-navigation li {
     position: relative;
+    box-sizing: border-box;
 }
 
-#app-navigation li a {
+#app-navigation li > a {
     display: flex;
     align-items: center;
+    width: 100%;
     height: 44px;
-    padding: 0 12px;
+    padding: 0 14px;
     color: var(--color-main-text);
     opacity: 0.7;
-    width: 100%;
+    box-sizing: border-box;
+    white-space: nowrap;
+    position: relative;
     text-decoration: none;
 }
 
-#app-navigation li a:hover,
-#app-navigation li a:focus,
-#app-navigation li a.active {
+#app-navigation li > a:hover,
+#app-navigation li > a:focus,
+#app-navigation li.active > a {
     opacity: 1;
     background-color: var(--color-background-hover);
 }
@@ -163,7 +181,8 @@
     width: 16px;
     height: 16px;
     background-size: 16px;
-    opacity: .7;
+    opacity: 0.7;
+    filter: var(--background-invert-if-dark);
 }
 
 
