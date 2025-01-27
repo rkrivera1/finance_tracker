@@ -30,58 +30,18 @@ class Application extends App implements IBootstrap {
     public const APP_ID = 'finance_tracker';
 
     public function __construct(array $urlParams = []) {
-        // Attempt to load autoloader with detailed error handling
-        $this->loadComposerAutoloader();
+        // Explicit autoload path
+        $autoloadPath = __DIR__ . '/../../vendor/autoload.php';
         
+        if (file_exists($autoloadPath)) {
+            require_once $autoloadPath;
+        } else {
+            // Log a clear error message
+            error_log("Finance Tracker Autoload Error: Composer autoload not found at $autoloadPath");
+            throw new \Exception("Composer autoload not found. Please run 'composer install'.");
+        }
+
         parent::__construct(self::APP_ID, $urlParams);
-    }
-
-    private function loadComposerAutoloader(): void {
-        // Potential autoload paths in a Nextcloud environment
-        $possiblePaths = [
-            __DIR__ . '/../../vendor/autoload.php',           // App-specific vendor directory
-            __DIR__ . '/../../../vendor/autoload.php',        // Custom apps directory
-            __DIR__ . '/vendor/autoload.php',                 // Fallback path
-            '/var/www/html/custom_apps/finance_tracker/vendor/autoload.php', // Typical Nextcloud path
-            '/var/www/nextcloud/custom_apps/finance_tracker/vendor/autoload.php' // Alternative Nextcloud path
-        ];
-
-        $loadedSuccessfully = false;
-        $failedPaths = [];
-
-        foreach ($possiblePaths as $path) {
-            if (file_exists($path)) {
-                try {
-                    require_once $path;
-                    $loadedSuccessfully = true;
-                    break;
-                } catch (\Throwable $e) {
-                    $failedPaths[$path] = $e->getMessage();
-                }
-            } else {
-                $failedPaths[$path] = 'File does not exist';
-            }
-        }
-
-        if (!$loadedSuccessfully) {
-            // Detailed error logging
-            $errorMessage = "Composer autoload failed. Checked paths:\n";
-            foreach ($failedPaths as $path => $reason) {
-                $errorMessage .= "- $path: $reason\n";
-            }
-
-            // Log the error using Nextcloud's logging mechanism
-            \OC::$server->getLogger()->error(
-                'Finance Tracker Autoload Error: ' . $errorMessage, 
-                ['app' => self::APP_ID]
-            );
-
-            // Throw an exception with detailed information
-            throw new \Exception(
-                "Cannot include Composer autoload. Please run 'composer install' in the app directory.\n" . 
-                $errorMessage
-            );
-        }
     }
 
     public function register(IRegistrationContext $context): void {
