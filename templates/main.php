@@ -230,9 +230,60 @@ style('finance_tracker', 'style');
                 <!-- Budget Section -->
                 <section id="budget-section" class="finance-section" style="display: none;">
                     <div class="finance-section-content">
-                        <h2><?php p($l->t('Budget')); ?></h2>
-                        <div class="budgets-list"></div>
-                        <button id="add-budget-btn" class="primary"><?php p($l->t('Add Budget')); ?></button>
+                        <div class="budget-header">
+                            <h2><?php p($l->t('Budget Management')); ?></h2>
+                            <div class="budget-period-selector">
+                                <select id="budget-period">
+                                    <option value="monthly"><?php p($l->t('Monthly')); ?></option>
+                                    <option value="yearly"><?php p($l->t('Yearly')); ?></option>
+                                </select>
+                                <input type="month" id="budget-month" value="<?php echo date('Y-m'); ?>">
+                                <input type="number" id="budget-year" value="<?php echo date('Y'); ?>" min="2000" max="2100" style="display: none;">
+                            </div>
+                            <button id="add-budget-btn" class="primary">
+                                <span class="icon-add"></span>
+                                <?php p($l->t('Add Budget')); ?>
+                            </button>
+                        </div>
+
+                        <div class="budget-overview">
+                            <div class="budget-summary card">
+                                <h3><?php p($l->t('Budget Summary')); ?></h3>
+                                <div class="budget-stats">
+                                    <div class="stat-item">
+                                        <span class="label"><?php p($l->t('Total Budget')); ?></span>
+                                        <span class="value" id="total-budget">$0.00</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="label"><?php p($l->t('Spent')); ?></span>
+                                        <span class="value" id="total-spent">$0.00</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="label"><?php p($l->t('Remaining')); ?></span>
+                                        <span class="value" id="total-remaining">$0.00</span>
+                                    </div>
+                                </div>
+                                <div class="overall-progress">
+                                    <div class="progress-bar">
+                                        <div class="progress" style="width: 0%"></div>
+                                    </div>
+                                    <span class="progress-text">0% used</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="budget-categories">
+                            <div class="categories-grid" id="budget-categories-grid">
+                                <!-- Dynamically populated by JavaScript -->
+                            </div>
+                        </div>
+
+                        <div class="budget-alerts">
+                            <h3><?php p($l->t('Budget Alerts')); ?></h3>
+                            <div id="budget-alerts-list">
+                                <!-- Dynamically populated by JavaScript -->
+                            </div>
+                        </div>
                     </div>
                 </section>
 
@@ -340,39 +391,52 @@ style('finance_tracker', 'style');
     <!-- Budget Modal -->
     <div id="budget-modal" class="modal hidden">
         <div class="modal-content">
-            <h2><?php p($l->t('Add Budget')); ?></h2>
-            <form id="budget-form" class="form-group">
-                <div class="form-group">
-                    <label for="budget-name"><?php p($l->t('Budget Name')); ?></label>
-                    <input type="text" 
-                           id="budget-name" 
-                           class="input-field" 
-                           placeholder="<?php p($l->t('Budget Name')); ?>" 
-                           required>
-                </div>
-                <div class="form-group">
-                    <label for="budget-amount"><?php p($l->t('Budget Amount')); ?></label>
-                    <input type="number" 
-                           id="budget-amount" 
-                           class="input-field" 
-                           placeholder="<?php p($l->t('Budget Amount')); ?>" 
-                           step="0.01" 
-                           required>
-                </div>
+            <h2><?php p($l->t('Add/Edit Budget')); ?></h2>
+            <form id="budget-form">
                 <div class="form-group">
                     <label for="budget-category"><?php p($l->t('Category')); ?></label>
-                    <select id="budget-category" class="select-field">
+                    <select id="budget-category" required>
                         <option value=""><?php p($l->t('Select Category')); ?></option>
-                        <option value="groceries"><?php p($l->t('Groceries')); ?></option>
-                        <option value="dining"><?php p($l->t('Dining Out')); ?></option>
-                        <option value="entertainment"><?php p($l->t('Entertainment')); ?></option>
-                        <option value="utilities"><?php p($l->t('Utilities')); ?></option>
+                        <option value="housing"><?php p($l->t('Housing')); ?></option>
                         <option value="transportation"><?php p($l->t('Transportation')); ?></option>
+                        <option value="groceries"><?php p($l->t('Groceries')); ?></option>
+                        <option value="utilities"><?php p($l->t('Utilities')); ?></option>
+                        <option value="healthcare"><?php p($l->t('Healthcare')); ?></option>
+                        <option value="entertainment"><?php p($l->t('Entertainment')); ?></option>
+                        <option value="dining"><?php p($l->t('Dining Out')); ?></option>
+                        <option value="shopping"><?php p($l->t('Shopping')); ?></option>
+                        <option value="savings"><?php p($l->t('Savings')); ?></option>
                         <option value="other"><?php p($l->t('Other')); ?></option>
                     </select>
                 </div>
+
+                <div class="form-group">
+                    <label for="budget-amount"><?php p($l->t('Amount')); ?></label>
+                    <input type="number" id="budget-amount" min="0" step="0.01" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="budget-alert-threshold"><?php p($l->t('Alert Threshold (%)')); ?></label>
+                    <input type="number" id="budget-alert-threshold" min="1" max="100" value="80">
+                </div>
+
+                <div class="form-group">
+                    <label for="budget-notes"><?php p($l->t('Notes')); ?></label>
+                    <textarea id="budget-notes"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="budget-goal"><?php p($l->t('Budget Goal')); ?></label>
+                    <input type="number" id="budget-goal" min="0" step="0.01">
+                    <select id="budget-goal-type">
+                        <option value="saving"><?php p($l->t('Saving Target')); ?></option>
+                        <option value="spending"><?php p($l->t('Spending Limit')); ?></option>
+                    </select>
+                    <input type="date" id="budget-goal-date" placeholder="<?php p($l->t('Target Date')); ?>">
+                </div>
+
                 <div class="modal-actions">
-                    <button type="button" class="button cancel"><?php p($l->t('Cancel')); ?></button>
+                    <button type="button" class="cancel"><?php p($l->t('Cancel')); ?></button>
                     <button type="submit" class="primary"><?php p($l->t('Save')); ?></button>
                 </div>
             </form>
@@ -395,4 +459,23 @@ style('finance_tracker', 'style');
             </form>
         </div>
     </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-confirmation-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2><?php p($l->t('Confirm Deletion')); ?></h2>
+            <p id="delete-confirmation-message"></p>
+            <div class="modal-actions">
+                <button id="confirm-delete-btn" class="primary danger">
+                    <?php p($l->t('Delete')); ?>
+                </button>
+                <button id="cancel-delete-btn" class="cancel">
+                    <?php p($l->t('Cancel')); ?>
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Add this after your other script includes -->
+<script src="<?php print_unescaped(script_path('sampleData')); ?>"></script>

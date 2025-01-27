@@ -1013,183 +1013,101 @@ document.addEventListener('DOMContentLoaded', function() {
     setupTransactionSearch();
 
     // Stock Search and Details Functionality
-    function setupStockSearch() {
-        const searchInput = document.getElementById('stock-search-input');
-        const searchBtn = document.getElementById('stock-search-btn');
-        const searchResultsContainer = document.getElementById('stock-search-results');
-        const searchResultsBody = document.getElementById('stock-search-results-body');
-        const stockDetailsModal = document.getElementById('stock-details-modal');
-        const stockDetailsTitle = document.getElementById('stock-details-title');
-        const stockDetailsContent = document.getElementById('stock-details-content');
-        const closeModalBtn = document.querySelector('.close-modal');
-        const addToPortfolioBtn = document.getElementById('add-to-portfolio-btn');
-
-        if (!searchInput || !searchBtn) return;
-
-        // Search button click handler
-        searchBtn.addEventListener('click', performStockSearch);
-
-        // Enter key handler for search input
-        searchInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                performStockSearch();
-            }
+    function setupStockTracking() {
+        const stockSearchInput = document.getElementById('stock-search-input');
+        const stockSearchBtn = document.getElementById('stock-search-btn');
+        const stockSearchResults = document.getElementById('stock-search-results');
+        
+        // Add click handler for search button
+        stockSearchBtn.addEventListener('click', () => {
+            performStockSearch(stockSearchInput.value);
         });
-
-        // Close modal handlers
-        closeModalBtn.addEventListener('click', closeStockDetailsModal);
-        stockDetailsModal.addEventListener('click', function(e) {
-            if (e.target === stockDetailsModal) {
-                closeStockDetailsModal();
+        
+        // Keep the existing input handler for real-time search
+        stockSearchInput.addEventListener('input', debounce(async (e) => {
+            if (e.target.value.length >= 2) {
+                performStockSearch(e.target.value);
             }
-        });
+        }, 300));
 
-        function performStockSearch() {
-            const searchTerm = searchInput.value.trim();
-            
-            if (!searchTerm) {
-                alert('Please enter a stock symbol or company name');
+        async function performStockSearch(query) {
+            if (!query.trim()) {
+                showNotification(t('finance_tracker', 'Please enter a search term'), 'info');
                 return;
             }
-
-            // Fetch stock search results
-            fetch('/apps/finance_tracker/stocks/search', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'requesttoken': OC.requestToken
-                },
-                body: JSON.stringify({ query: searchTerm })
-            })
-            .then(response => response.json())
-            .then(results => {
-                // Clear previous results
-                searchResultsBody.innerHTML = '';
-                
-                if (results.length === 0) {
-                    const noResultsRow = searchResultsBody.insertRow();
-                    const noResultsCell = noResultsRow.insertCell(0);
-                    noResultsCell.colSpan = 6;
-                    noResultsCell.textContent = 'No stocks found matching your search.';
-                    noResultsCell.classList.add('text-center');
-                    
-                    searchResultsContainer.classList.remove('hidden');
-                    return;
-                }
-
-                // Populate search results
-                results.forEach(stock => {
-                    const row = searchResultsBody.insertRow();
-                    
-                    // Symbol
-                    const symbolCell = row.insertCell(0);
-                    symbolCell.textContent = stock.symbol;
-                    
-                    // Company Name
-                    const nameCell = row.insertCell(1);
-                    nameCell.textContent = stock.name;
-                    
-                    // Current Price
-                    const priceCell = row.insertCell(2);
-                    priceCell.textContent = `$${stock.price.toFixed(2)}`;
-                    
-                    // Change
-                    const changeCell = row.insertCell(3);
-                    changeCell.textContent = `$${stock.change.toFixed(2)}`;
-                    changeCell.classList.add(stock.change >= 0 ? 'positive' : 'negative');
-                    
-                    // Change Percentage
-                    const changePercentCell = row.insertCell(4);
-                    changePercentCell.textContent = `${stock.changePercent.toFixed(2)}%`;
-                    changePercentCell.classList.add(stock.changePercent >= 0 ? 'positive' : 'negative');
-                    
-                    // Actions
-                    const actionsCell = row.insertCell(5);
-                    const detailsBtn = document.createElement('button');
-                    detailsBtn.textContent = 'Details';
-                    detailsBtn.classList.add('secondary', 'small');
-                    detailsBtn.addEventListener('click', () => showStockDetails(stock));
-                    actionsCell.appendChild(detailsBtn);
+            
+            try {
+                const response = await fetch(OC.generateUrl('/apps/finance_tracker/api/stocks/search'), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'requesttoken': OC.requestToken
+                    },
+                    body: JSON.stringify({ query: query.trim() })
                 });
-
-                // Show results container
-                searchResultsContainer.classList.remove('hidden');
-            })
-            .catch(error => {
+                
+                const data = await response.json();
+                displayStockSearchResults(data);
+            } catch (error) {
                 console.error('Stock search error:', error);
-                alert('Failed to search stocks. Please try again.');
-            });
+                showNotification(t('finance_tracker', 'Failed to search stocks'), 'error');
+            }
         }
 
-        function showStockDetails(stock) {
-            // Populate modal with detailed stock information
-            stockDetailsTitle.textContent = `${stock.symbol} - ${stock.name}`;
+        function displayStockSearchResults(stocks) {
+            const resultsTable = document.getElementById('stock-search-results-table');
+            resultsTable.innerHTML = '';
             
-            const detailsHTML = `
-                <div class="stock-details-grid">
-                    <div class="stock-detail">
-                        <strong>Current Price:</strong> $${stock.price.toFixed(2)}
-                    </div>
-                    <div class="stock-detail">
-                        <strong>Change:</strong> 
-                        <span class="${stock.change >= 0 ? 'positive' : 'negative'}">
-                            $${stock.change.toFixed(2)} (${stock.changePercent.toFixed(2)}%)
+            stocks.forEach(stock => {
+                const row = resultsTable.insertRow();
+                row.innerHTML = `
+                    <td>${stock.symbol}</td>
+                    <td>${stock.name}</td>
+                    <td class="price">$${formatNumber(stock.price)}</td>
+                    <td class="change ${stock.change >= 0 ? 'positive' : 'negative'}">
+                        <span class="change-indicator">
+                            ${stock.change >= 0 ? '▲' : '▼'}
                         </span>
-                    </div>
-                    <div class="stock-detail">
-                        <strong>Previous Close:</strong> $${stock.previousClose.toFixed(2)}
-                    </div>
-                    <div class="stock-detail">
-                        <strong>Open:</strong> $${stock.open.toFixed(2)}
-                    </div>
-                    <div class="stock-detail">
-                        <strong>Day High:</strong> $${stock.dayHigh.toFixed(2)}
-                    </div>
-                    <div class="stock-detail">
-                        <strong>Day Low:</strong> $${stock.dayLow.toFixed(2)}
-                    </div>
-                    <div class="stock-detail">
-                        <strong>52 Week High:</strong> $${stock.fiftyTwoWeekHigh.toFixed(2)}
-                    </div>
-                    <div class="stock-detail">
-                        <strong>52 Week Low:</strong> $${stock.fiftyTwoWeekLow.toFixed(2)}
-                    </div>
-                </div>
-            `;
+                        ${formatNumber(stock.change)}%
+                    </td>
+                    <td class="performance">
+                        <div class="performance-metrics">
+                            <div class="metric">
+                                <span class="label">1d:</span>
+                                <span class="${stock.performance.day > 0 ? 'positive' : 'negative'}">
+                                    ${formatNumber(stock.performance.day)}%
+                                </span>
+                            </div>
+                            <div class="metric">
+                                <span class="label">1m:</span>
+                                <span class="${stock.performance.month > 0 ? 'positive' : 'negative'}">
+                                    ${formatNumber(stock.performance.month)}%
+                                </span>
+                            </div>
+                            <div class="metric">
+                                <span class="label">YTD:</span>
+                                <span class="${stock.performance.ytd > 0 ? 'positive' : 'negative'}">
+                                    ${formatNumber(stock.performance.ytd)}%
+                                </span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${formatVolume(stock.volume)}</td>
+                    <td>
+                        <button class="primary small add-stock-btn" 
+                                data-symbol="${stock.symbol}" 
+                                data-price="${stock.price}">
+                            ${t('finance_tracker', 'Add')}
+                        </button>
+                    </td>
+                `;
+            });
             
-            stockDetailsContent.innerHTML = detailsHTML;
-            
-            // Set up add to portfolio button
-            addToPortfolioBtn.onclick = () => addStockToPortfolio(stock);
-            
-            // Show modal
-            stockDetailsModal.classList.remove('hidden');
-        }
-
-        function closeStockDetailsModal() {
-            stockDetailsModal.classList.add('hidden');
-        }
-
-        function addStockToPortfolio(stock) {
-            // Open add investment modal with pre-filled stock details
-            const addInvestmentModal = document.getElementById('investment-modal');
-            const symbolInput = document.getElementById('investment-symbol');
-            const nameInput = document.getElementById('investment-name');
-            const currentPriceInput = document.getElementById('investment-current-price');
-
-            symbolInput.value = stock.symbol;
-            nameInput.value = stock.name;
-            currentPriceInput.value = stock.price.toFixed(2);
-
-            // Close stock details modal
-            closeStockDetailsModal();
-
-            // Show add investment modal
-            addInvestmentModal.classList.remove('hidden');
+            stockSearchResults.classList.remove('hidden');
         }
     }
 
-    setupStockSearch();
+    setupStockTracking();
 
     // Dashboard Functionality
     function setupDashboard() {
@@ -1513,6 +1431,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize stock functionality
     setupStockTracking();
     setupRealTimeUpdates();
+
+    // Budget Section Functionality
+    setupBudgetSection();
+
+    // Initialize sample data
+    loadSampleData();
+
+    setupDeleteHandlers();
 });
 
 function initNavigation() {
@@ -1660,82 +1586,460 @@ function formatCurrency(amount) {
     }).format(amount);
 }
 
-function setupStockTracking() {
-    const stockSearchInput = document.getElementById('stock-search-input');
-    const stockSearchResults = document.getElementById('stock-search-results');
+function setupBudgetSection() {
+    const budgetPeriodSelect = document.getElementById('budget-period');
+    const budgetMonthInput = document.getElementById('budget-month');
+    const budgetYearInput = document.getElementById('budget-year');
+    const addBudgetBtn = document.getElementById('add-budget-btn');
+    const budgetModal = document.getElementById('budget-modal');
     
-    // Add real-time stock search
-    stockSearchInput.addEventListener('input', debounce(async (e) => {
-        const query = e.target.value.trim();
-        if (query.length < 2) return;
+    // Period selector handling
+    budgetPeriodSelect.addEventListener('change', (e) => {
+        const isPeriodMonthly = e.target.value === 'monthly';
+        budgetMonthInput.style.display = isPeriodMonthly ? 'block' : 'none';
+        budgetYearInput.style.display = isPeriodMonthly ? 'none' : 'block';
+        loadBudgetData();
+    });
+
+    // Date change handlers
+    budgetMonthInput.addEventListener('change', loadBudgetData);
+    budgetYearInput.addEventListener('change', loadBudgetData);
+
+    // Add budget button
+    addBudgetBtn.addEventListener('click', () => {
+        budgetModal.classList.remove('hidden');
+        document.getElementById('modal-overlay').classList.remove('hidden');
+    });
+
+    // Budget form handling
+    const budgetForm = document.getElementById('budget-form');
+    budgetForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
         
+        const formData = {
+            category: document.getElementById('budget-category').value,
+            amount: parseFloat(document.getElementById('budget-amount').value),
+            alertThreshold: parseInt(document.getElementById('budget-alert-threshold').value),
+            notes: document.getElementById('budget-notes').value,
+            period: budgetPeriodSelect.value,
+            date: budgetPeriodSelect.value === 'monthly' ? 
+                  budgetMonthInput.value : 
+                  budgetYearInput.value
+        };
+
         try {
-            const response = await fetch(OC.generateUrl('/apps/finance_tracker/api/stocks/search'), {
+            const response = await fetch(OC.generateUrl('/apps/finance_tracker/api/budgets'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'requesttoken': OC.requestToken
                 },
-                body: JSON.stringify({ query })
+                body: JSON.stringify(formData)
             });
+
+            if (response.ok) {
+                budgetModal.classList.add('hidden');
+                document.getElementById('modal-overlay').classList.add('hidden');
+                budgetForm.reset();
+                loadBudgetData();
+                showNotification(t('finance_tracker', 'Budget created successfully'), 'success');
+            } else {
+                throw new Error('Failed to create budget');
+            }
+        } catch (error) {
+            console.error('Budget creation error:', error);
+            showNotification(t('finance_tracker', 'Failed to create budget'), 'error');
+        }
+    });
+
+    async function loadBudgetData() {
+        const period = budgetPeriodSelect.value;
+        const date = period === 'monthly' ? budgetMonthInput.value : budgetYearInput.value;
+        
+        try {
+            const response = await fetch(
+                OC.generateUrl(`/apps/finance_tracker/api/budgets/${period}/${date}`),
+                {
+                    headers: {
+                        'requesttoken': OC.requestToken
+                    }
+                }
+            );
             
             const data = await response.json();
-            displayStockSearchResults(data);
+            updateBudgetUI(data);
         } catch (error) {
-            console.error('Stock search error:', error);
-            showNotification(t('finance_tracker', 'Failed to search stocks'), 'error');
+            console.error('Budget data loading error:', error);
+            showNotification(t('finance_tracker', 'Failed to load budget data'), 'error');
         }
-    }, 300));
-
-    function displayStockSearchResults(stocks) {
-        const resultsTable = document.getElementById('stock-search-results-table');
-        resultsTable.innerHTML = '';
-        
-        stocks.forEach(stock => {
-            const row = resultsTable.insertRow();
-            row.innerHTML = `
-                <td>${stock.symbol}</td>
-                <td>${stock.name}</td>
-                <td class="price">$${formatNumber(stock.price)}</td>
-                <td class="change ${stock.change >= 0 ? 'positive' : 'negative'}">
-                    <span class="change-indicator">
-                        ${stock.change >= 0 ? '▲' : '▼'}
-                    </span>
-                    ${formatNumber(stock.change)}%
-                </td>
-                <td class="performance">
-                    <div class="performance-metrics">
-                        <div class="metric">
-                            <span class="label">1d:</span>
-                            <span class="${stock.performance.day > 0 ? 'positive' : 'negative'}">
-                                ${formatNumber(stock.performance.day)}%
-                            </span>
-                        </div>
-                        <div class="metric">
-                            <span class="label">1m:</span>
-                            <span class="${stock.performance.month > 0 ? 'positive' : 'negative'}">
-                                ${formatNumber(stock.performance.month)}%
-                            </span>
-                        </div>
-                        <div class="metric">
-                            <span class="label">YTD:</span>
-                            <span class="${stock.performance.ytd > 0 ? 'positive' : 'negative'}">
-                                ${formatNumber(stock.performance.ytd)}%
-                            </span>
-                        </div>
-                    </div>
-                </td>
-                <td>${formatVolume(stock.volume)}</td>
-                <td>
-                    <button class="primary small add-stock-btn" 
-                            data-symbol="${stock.symbol}" 
-                            data-price="${stock.price}">
-                        ${t('finance_tracker', 'Add')}
-                    </button>
-                </td>
-            `;
-        });
-        
-        stockSearchResults.classList.remove('hidden');
     }
+
+    function updateBudgetUI(data) {
+        // Update summary stats
+        document.getElementById('total-budget').textContent = formatCurrency(data.totalBudget);
+        document.getElementById('total-spent').textContent = formatCurrency(data.totalSpent);
+        document.getElementById('total-remaining').textContent = formatCurrency(data.totalRemaining);
+
+        // Update progress bar
+        const progressPercent = (data.totalSpent / data.totalBudget) * 100;
+        const progressBar = document.querySelector('.progress');
+        const progressText = document.querySelector('.progress-text');
+        
+        progressBar.style.width = `${Math.min(progressPercent, 100)}%`;
+        progressBar.className = `progress ${progressPercent > 80 ? 'warning' : ''}`;
+        progressText.textContent = `${progressPercent.toFixed(1)}% used`;
+
+        // Update category grid
+        const categoriesGrid = document.getElementById('budget-categories-grid');
+        categoriesGrid.innerHTML = '';
+
+        data.categories.forEach(category => {
+            const categoryCard = createCategoryCard(category);
+            categoriesGrid.appendChild(categoryCard);
+        });
+
+        // Update alerts
+        updateBudgetAlerts(data.alerts);
+
+        // Update goals section
+        updateGoalsProgress(data.goals);
+    }
+
+    function createCategoryCard(category) {
+        const card = document.createElement('div');
+        card.className = 'category-card';
+        
+        const spentPercent = (category.spent / category.budget) * 100;
+        const isOverBudget = spentPercent > 100;
+        const isNearLimit = spentPercent > 80;
+
+        card.innerHTML = `
+            <div class="category-header ${isOverBudget ? 'over-budget' : isNearLimit ? 'near-limit' : ''}">
+                <h4>${category.name}</h4>
+                <div class="category-actions">
+                    <button class="edit-category" data-id="${category.id}">
+                        <span class="icon-rename"></span>
+                    </button>
+                    <button class="delete-category" data-id="${category.id}">
+                        <span class="icon-delete"></span>
+                    </button>
+                </div>
+            </div>
+            <div class="category-stats">
+                <div class="stat">
+                    <span class="label">${t('finance_tracker', 'Budget')}</span>
+                    <span class="value">${formatCurrency(category.budget)}</span>
+                </div>
+                <div class="stat">
+                    <span class="label">${t('finance_tracker', 'Spent')}</span>
+                    <span class="value">${formatCurrency(category.spent)}</span>
+                </div>
+                <div class="stat">
+                    <span class="label">${t('finance_tracker', 'Remaining')}</span>
+                    <span class="value ${isOverBudget ? 'negative' : 'positive'}">
+                        ${formatCurrency(category.budget - category.spent)}
+                    </span>
+                </div>
+            </div>
+            <div class="category-progress">
+                <div class="progress-bar">
+                    <div class="progress ${isOverBudget ? 'over-budget' : isNearLimit ? 'warning' : ''}" 
+                         style="width: ${Math.min(spentPercent, 100)}%">
+                    </div>
+                </div>
+                <span class="progress-text">${spentPercent.toFixed(1)}%</span>
+            </div>
+        `;
+
+        return card;
+    }
+
+    function updateBudgetAlerts(alerts) {
+        const alertsList = document.getElementById('budget-alerts-list');
+        alertsList.innerHTML = '';
+
+        alerts.forEach(alert => {
+            const alertElement = document.createElement('div');
+            alertElement.className = `budget-alert ${alert.severity}`;
+            alertElement.innerHTML = `
+                <span class="alert-icon"></span>
+                <span class="alert-message">${alert.message}</span>
+                <span class="alert-date">${formatDate(alert.date)}</span>
+            `;
+            alertsList.appendChild(alertElement);
+        });
+    }
+
+    function updateGoalsProgress(goals) {
+        const goalsContainer = document.getElementById('budget-goals');
+        goalsContainer.innerHTML = '';
+
+        goals.forEach(goal => {
+            const goalCard = document.createElement('div');
+            goalCard.className = 'goal-card';
+            
+            const progress = (goal.currentAmount / goal.targetAmount) * 100;
+            const remainingDays = Math.ceil((new Date(goal.targetDate) - new Date()) / (1000 * 60 * 60 * 24));
+            
+            goalCard.innerHTML = `
+                <div class="goal-header">
+                    <h4>${goal.type === 'saving' ? t('finance_tracker', 'Saving Goal') : t('finance_tracker', 'Spending Limit')}</h4>
+                    <span class="goal-date">${t('finance_tracker', '{days} days remaining', {days: remainingDays})}</span>
+                </div>
+                <div class="goal-amount">
+                    <span class="current">${formatCurrency(goal.currentAmount)}</span>
+                    <span class="separator">/</span>
+                    <span class="target">${formatCurrency(goal.targetAmount)}</span>
+                </div>
+                <div class="goal-progress">
+                    <div class="progress-bar">
+                        <div class="progress" style="width: ${progress}%"></div>
+                    </div>
+                    <span class="progress-text">${progress.toFixed(1)}%</span>
+                </div>
+                <div class="goal-stats">
+                    <div class="stat">
+                        <span class="label">${t('finance_tracker', 'Remaining')}</span>
+                        <span class="value">${formatCurrency(goal.targetAmount - goal.currentAmount)}</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">${t('finance_tracker', 'Daily Target')}</span>
+                        <span class="value">${formatCurrency((goal.targetAmount - goal.currentAmount) / remainingDays)}</span>
+                    </div>
+                </div>
+            `;
+            
+            goalsContainer.appendChild(goalCard);
+        });
+
+        // Update dashboard if we're on the dashboard
+        const dashboardGoals = document.getElementById('dashboard-goals');
+        if (dashboardGoals) {
+            dashboardGoals.innerHTML = goalsContainer.innerHTML;
+        }
+    }
+
+    // Initial load
+    loadBudgetData();
+}
+
+function loadSampleData() {
+    // Simulate API responses with sample data
+    window.mockApi = {
+        getAccounts: () => Promise.resolve(sampleData.accounts),
+        getTransactions: () => Promise.resolve(sampleData.transactions),
+        getInvestments: () => Promise.resolve(sampleData.investments),
+        getBudgets: () => Promise.resolve(sampleData.budgets)
+    };
+}
+
+async function loadAccountsData() {
+    const accountsList = document.querySelector('.accounts-list');
+    try {
+        const accounts = await window.mockApi.getAccounts();
+        displayAccounts(accounts);
+    } catch (error) {
+        console.error('Error loading accounts:', error);
+        showNotification(t('finance_tracker', 'Failed to load accounts'), 'error');
+    }
+}
+
+async function loadTransactionsData() {
+    const transactionsTable = document.getElementById('transactions-table-body');
+    try {
+        const transactions = await window.mockApi.getTransactions();
+        displayTransactions(transactions);
+    } catch (error) {
+        console.error('Error loading transactions:', error);
+        showNotification(t('finance_tracker', 'Failed to load transactions'), 'error');
+    }
+}
+
+async function loadBudgetData() {
+    try {
+        const budgetData = await window.mockApi.getBudgets();
+        updateBudgetUI(budgetData);
+    } catch (error) {
+        console.error('Error loading budget data:', error);
+        showNotification(t('finance_tracker', 'Failed to load budget data'), 'error');
+    }
+}
+
+function setupDeleteHandlers() {
+    const deleteConfirmationModal = document.getElementById('delete-confirmation-modal');
+    const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+    const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+    let currentDeleteCallback = null;
+
+    function showDeleteConfirmation(message, onConfirm) {
+        document.getElementById('delete-confirmation-message').textContent = message;
+        deleteConfirmationModal.classList.remove('hidden');
+        document.getElementById('modal-overlay').classList.remove('hidden');
+        currentDeleteCallback = onConfirm;
+    }
+
+    confirmDeleteBtn.addEventListener('click', () => {
+        if (currentDeleteCallback) {
+            currentDeleteCallback();
+        }
+        deleteConfirmationModal.classList.add('hidden');
+        document.getElementById('modal-overlay').classList.add('hidden');
+    });
+
+    cancelDeleteBtn.addEventListener('click', () => {
+        deleteConfirmationModal.classList.add('hidden');
+        document.getElementById('modal-overlay').classList.add('hidden');
+    });
+
+    // Account deletion
+    document.querySelector('.accounts-list').addEventListener('click', (e) => {
+        const deleteBtn = e.target.closest('.delete-account-btn');
+        if (deleteBtn) {
+            const accountId = deleteBtn.dataset.id;
+            const accountName = deleteBtn.dataset.name;
+            
+            showDeleteConfirmation(
+                t('finance_tracker', 'Are you sure you want to delete the account "{name}"?', {name: accountName}),
+                async () => {
+                    try {
+                        await deleteAccount(accountId);
+                        loadAccountsData();
+                        showNotification(t('finance_tracker', 'Account deleted successfully'), 'success');
+                    } catch (error) {
+                        showNotification(t('finance_tracker', 'Failed to delete account'), 'error');
+                    }
+                }
+            );
+        }
+    });
+
+    // Transaction deletion
+    document.getElementById('transactions-table-body').addEventListener('click', (e) => {
+        const deleteBtn = e.target.closest('.delete-transaction-btn');
+        if (deleteBtn) {
+            const transactionId = deleteBtn.dataset.id;
+            
+            showDeleteConfirmation(
+                t('finance_tracker', 'Are you sure you want to delete this transaction?'),
+                async () => {
+                    try {
+                        await deleteTransaction(transactionId);
+                        loadTransactionsData();
+                        showNotification(t('finance_tracker', 'Transaction deleted successfully'), 'success');
+                    } catch (error) {
+                        showNotification(t('finance_tracker', 'Failed to delete transaction'), 'error');
+                    }
+                }
+            );
+        }
+    });
+
+    // Investment deletion
+    document.getElementById('investments-table-body').addEventListener('click', (e) => {
+        const deleteBtn = e.target.closest('.delete-investment-btn');
+        if (deleteBtn) {
+            const symbol = deleteBtn.dataset.symbol;
+            
+            showDeleteConfirmation(
+                t('finance_tracker', 'Are you sure you want to stop tracking {symbol}?', {symbol}),
+                async () => {
+                    try {
+                        await deleteInvestment(symbol);
+                        loadInvestmentsData();
+                        showNotification(t('finance_tracker', 'Investment removed successfully'), 'success');
+                    } catch (error) {
+                        showNotification(t('finance_tracker', 'Failed to remove investment'), 'error');
+                    }
+                }
+            );
+        }
+    });
+
+    // Budget deletion
+    document.getElementById('budget-categories-grid').addEventListener('click', (e) => {
+        const deleteBtn = e.target.closest('.delete-category');
+        if (deleteBtn) {
+            const categoryId = deleteBtn.dataset.id;
+            const categoryName = deleteBtn.closest('.category-card').querySelector('h4').textContent;
+            
+            showDeleteConfirmation(
+                t('finance_tracker', 'Are you sure you want to delete the budget for "{name}"?', {name: categoryName}),
+                async () => {
+                    try {
+                        await deleteBudget(categoryId);
+                        loadBudgetData();
+                        showNotification(t('finance_tracker', 'Budget deleted successfully'), 'success');
+                    } catch (error) {
+                        showNotification(t('finance_tracker', 'Failed to delete budget'), 'error');
+                    }
+                }
+            );
+        }
+    });
+
+    // Delete API functions
+    async function deleteAccount(accountId) {
+        // For sample data, just remove from the array
+        sampleData.accounts = sampleData.accounts.filter(account => account.id !== parseInt(accountId));
+        return Promise.resolve();
+    }
+
+    async function deleteTransaction(transactionId) {
+        sampleData.transactions = sampleData.transactions.filter(transaction => transaction.id !== parseInt(transactionId));
+        return Promise.resolve();
+    }
+
+    async function deleteInvestment(symbol) {
+        sampleData.investments = sampleData.investments.filter(investment => investment.symbol !== symbol);
+        return Promise.resolve();
+    }
+
+    async function deleteBudget(categoryId) {
+        sampleData.budgets.categories = sampleData.budgets.categories.filter(category => category.id !== parseInt(categoryId));
+        return Promise.resolve();
+    }
+}
+
+function displayAccounts(accounts) {
+    const accountsList = document.querySelector('.accounts-list');
+    accountsList.innerHTML = accounts.map(account => `
+        <div class="account-item" data-id="${account.id}">
+            <div class="account-info">
+                <h3>${account.name}</h3>
+                <span class="account-type">${account.type}</span>
+                <span class="account-balance">${formatCurrency(account.balance)}</span>
+            </div>
+            <div class="account-actions">
+                <button class="edit-account-btn" data-id="${account.id}">
+                    <span class="icon-rename"></span>
+                </button>
+                <button class="delete-account-btn" data-id="${account.id}" data-name="${account.name}">
+                    <span class="icon-delete"></span>
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function displayTransactions(transactions) {
+    const tbody = document.getElementById('transactions-table-body');
+    tbody.innerHTML = transactions.map(transaction => `
+        <tr>
+            <td>${transaction.date}</td>
+            <td>${transaction.description}</td>
+            <td>${transaction.category}</td>
+            <td class="${transaction.type === 'expense' ? 'negative' : 'positive'}">
+                ${formatCurrency(transaction.amount)}
+            </td>
+            <td>${transaction.type}</td>
+            <td>
+                <button class="edit-transaction-btn" data-id="${transaction.id}">
+                    <span class="icon-rename"></span>
+                </button>
+                <button class="delete-transaction-btn" data-id="${transaction.id}">
+                    <span class="icon-delete"></span>
+                </button>
+            </td>
+        </tr>
+    `).join('');
 }

@@ -18,40 +18,18 @@ class AdminSettings implements ISettings {
     }
 
     public function getForm(): TemplateResponse {
-        $apiKey = $this->config->getAppValue('finance_tracker', 'alpha_vantage_api_key', '');
-        
-        $parameters = [
-            // Stock API Provider Settings
-            'alpha_vantage_api_key' => $apiKey,
-            'finnhub_api_key' => $this->config->getAppValue(
-                $this->appName, 
-                'finnhub_api_key', 
+        return new TemplateResponse('finance_tracker', 'settings/admin', [
+            'alpha_vantage_api_key' => $this->config->getAppValue(
+                'finance_tracker',
+                'alpha_vantage_api_key',
                 ''
             ),
-            'twelve_data_api_key' => $this->config->getAppValue(
-                $this->appName, 
-                'twelve_data_api_key', 
-                ''
-            ),
-            
-            // Additional stock tracking settings
-            'stock_update_frequency' => $this->config->getAppValue(
-                $this->appName, 
-                'stock_update_frequency', 
-                '5' // Default 5 minutes
-            ),
-            'stock_tracking_enabled' => $this->config->getAppValue(
-                $this->appName, 
-                'stock_tracking_enabled', 
-                'true'
+            'stock_update_interval' => $this->config->getAppValue(
+                'finance_tracker',
+                'stock_update_interval',
+                '5'
             )
-        ];
-
-        return new TemplateResponse(
-            $this->appName, 
-            'settings/admin', 
-            $parameters
-        );
+        ]);
     }
 
     public function getSection(): string {
