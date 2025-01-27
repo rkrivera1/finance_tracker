@@ -3,27 +3,26 @@
       xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
     <id>finance_tracker</id>
     <name>Finance Tracker</name>
-    <summary>Comprehensive financial management and tracking</summary>
-    <description><![CDATA[A powerful Nextcloud app to manage your personal finances, track investments, monitor budgets, and gain insights into your financial health.
-
-Key Features:
-- Transaction tracking
-- Investment portfolio management
-- Budget planning and monitoring
-- Detailed financial reports
-- Secure and private financial data storage
-]]></description>
+    <summary>Personal finance management and tracking application</summary>
+    <description>
+        A comprehensive finance tracking app for Nextcloud
+        - Track personal finances
+        - Manage investments
+        - Create budgets
+        - Detailed financial reports
+        - Secure and private financial data storage
+    </description>
     <version>1.0.5</version>
     <licence>agpl</licence>
     <author>Juan Rivera</author>
     <namespace>FinanceTracker</namespace>
-    <category>tools</category>
     <category>finance</category>
+    <category>tools</category>
     <website>https://github.com/rkrivera1/nextcloud-finance-tracker</website>
     <bugs>https://github.com/rkrivera1/nextcloud-finance-tracker/issues</bugs>
     <repository type="git">https://github.com/rkrivera1/nextcloud-finance-tracker.git</repository>
     <dependencies>
-        <nextcloud min-version="24" max-version="30"/>
+        <nextcloud min-version="24" max-version="28"/>
         <php min-version="8.1"/>
     </dependencies>
     <settings>
@@ -40,4 +39,12 @@ Key Features:
     <design>
         <screenshot>img/app-dark.svg</screenshot>
     </design>
+    <repair-steps>
+        <post-migration>
+            <step>OCA\FinanceTracker\Migration\Version001000Date20240101PostMigration</step>
+        </post-migration>
+    </repair-steps>
+    <migrations>
+        <migration>OCA\FinanceTracker\Migration\Version001000Date20240101</migration>
+    </migrations>
 </info>
