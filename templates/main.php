@@ -3,77 +3,108 @@ script('finance_tracker', 'script');
 style('finance_tracker', 'style');
 ?>
 
-<div id="app" class="app-finance-tracker">
-    <div id="app-navigation">
-        <ul>
-            <li>
-                <a href="#dashboard" class="nav-icon-dashboard">
-                    <?php p($l->t('Dashboard')); ?>
-                </a>
-            </li>
-            <li>
-                <a href="#transactions" class="nav-icon-transactions">
-                    <?php p($l->t('Transactions')); ?>
-                </a>
-            </li>
-            <li>
-                <a href="#investments" class="nav-icon-investments">
-                    <?php p($l->t('Investments')); ?>
-                </a>
-            </li>
-            <li>
-                <a href="#budget" class="nav-icon-budget">
-                    <?php p($l->t('Budget')); ?>
-                </a>
-            </li>
-        </ul>
+<div id="app-navigation">
+    <ul>
+        <li data-id="dashboard">
+            <a href="#dashboard">
+                <span class="icon-home"></span>
+                <span><?php p($l->t('Dashboard')); ?></span>
+            </a>
+        </li>
+        <li data-id="transactions">
+            <a href="#transactions">
+                <span class="icon-history"></span>
+                <span><?php p($l->t('Transactions')); ?></span>
+            </a>
+        </li>
+        <li data-id="investments">
+            <a href="#investments">
+                <span class="icon-category-office"></span>
+                <span><?php p($l->t('Investments')); ?></span>
+            </a>
+        </li>
+        <li data-id="budget">
+            <a href="#budget">
+                <span class="icon-category-monitoring"></span>
+                <span><?php p($l->t('Budget')); ?></span>
+            </a>
+        </li>
+    </ul>
+</div>
 
-        <?php print_unescaped($this->inc('navigation')); ?>
-    </div>
+<div id="app-content">
 
-    <div id="app-content">
-        <div id="app-content-wrapper">
-            <div id="emptycontent" class="hidden">
-                <div class="icon-folder"></div>
-                <h2><?php p($l->t('No data available')); ?></h2>
-                <p><?php p($l->t('Start by adding your first transaction or budget.')); ?></p>
-            </div>
 
-            <div id="dashboard-section" class="section active">
-                <div class="section-content">
-                    <div class="app-content-list">
-                <div class="finance-section-content">
-                    <h2><?php p($l->t('Financial Dashboard')); ?></h2>
-                    <div class="dashboard-overview">
-                        <div class="dashboard-card card">
-                            <h3 class="card-title"><?php p($l->t('Account Summary')); ?></h3>
-                            <div id="dashboard-accounts-summary" class="card-body">
-                                <div class="loading-indicator">
-                                    <span class="icon-loading"></span>
-                                    <?php p($l->t('Loading account summary...')); ?>
+    <div id="app-content-wrapper">
+        <div id="emptycontent" class="emptycontent hidden">
+            <div class="icon-folder"></div>
+            <h2><?php p($l->t('No data available')); ?></h2>
+            <p><?php p($l->t('Start by adding your first transaction or budget.')); ?></p>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard-section" class="section active">
+            <div id="app-content-wrapper">
+                <div class="app-content-list">
+                    <div class="empty-content icon-loading" id="dashboard-loading">
+                        <?php p($l->t('Loading dashboard...')); ?>
+                    </div>
+                    
+                    <div id="dashboard-content" class="dashboard-content hidden">
+                        <div class="grid-row">
+                            <div class="grid-item">
+                                <div class="content-card">
+                                    <div class="content-card-header">
+                                        <h3><?php p($l->t('Account Summary')); ?></h3>
+                                    </div>
+                                    <div class="content-card-body" id="dashboard-accounts-summary">
+                                        <div class="summary-total">
+                                            <span class="summary-label"><?php p($l->t('Total Balance')); ?></span>
+                                            <span class="summary-amount" id="total-balance">$0.00</span>
+                                        </div>
+                                        <div class="accounts-list" id="accounts-list">
+                                            <!-- Accounts will be populated here -->
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="dashboard-card card">
-                            <h3 class="card-title"><?php p($l->t('Recent Transactions')); ?></h3>
-                            <div id="dashboard-recent-transactions" class="card-body">
-                                <div class="loading-indicator">
-                                    <span class="icon-loading"></span>
-                                    <?php p($l->t('Loading recent transactions...')); ?>
+
+                            <div class="grid-item">
+                                <div class="content-card">
+                                    <div class="content-card-header">
+                                        <h3><?php p($l->t('Recent Transactions')); ?></h3>
+                                        <a href="#transactions" class="button primary">
+                                            <?php p($l->t('View All')); ?>
+                                        </a>
+                                    </div>
+                                    <div class="content-card-body" id="dashboard-recent-transactions">
+                                        <ul class="transactions-list">
+                                            <!-- Recent transactions will be populated here -->
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="dashboard-card card">
-                            <h3 class="card-title"><?php p($l->t('Budget Overview')); ?></h3>
-                            <div id="dashboard-budget-overview" class="card-body">
-                                <div class="loading-indicator">
-                                    <span class="icon-loading"></span>
-                                    <?php p($l->t('Loading budget overview...')); ?>
+
+                            <div class="grid-item">
+                                <div class="content-card">
+                                    <div class="content-card-header">
+                                        <h3><?php p($l->t('Budget Overview')); ?></h3>
+                                        <a href="#budget" class="button">
+                                            <?php p($l->t('Manage Budgets')); ?>
+                                        </a>
+                                    </div>
+                                    <div class="content-card-body" id="dashboard-budget-overview">
+                                        <div class="budget-progress">
+                                            <!-- Budget progress will be populated here -->
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+
             </section>
 
             <!-- Transactions Section -->
@@ -526,102 +557,155 @@ style('finance_tracker', 'style');
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Navigation section switching
-    const navItems = document.querySelectorAll('#app-navigation .nav-item a');
-    const sections = document.querySelectorAll('.finance-section');
+    // Navigation handling
+    const navItems = document.querySelectorAll('#app-navigation li');
+    const sections = document.querySelectorAll('.section');
 
+    function activateSection(sectionId) {
+        // Remove active class from all nav items and sections
+        navItems.forEach(item => item.classList.remove('active'));
+        sections.forEach(section => section.classList.remove('active'));
+
+        // Add active class to selected nav item and section
+        const selectedNav = document.querySelector(`[data-id="${sectionId}"]`);
+        const selectedSection = document.getElementById(`${sectionId}-section`);
+
+        if (selectedNav && selectedSection) {
+            selectedNav.classList.add('active');
+            selectedSection.classList.add('active');
+        }
+    }
+
+    // Add click handlers to navigation items
     navItems.forEach(item => {
         item.addEventListener('click', function(e) {
             e.preventDefault();
-            const sectionId = this.getAttribute('data-section');
-            
-            // Hide all sections
-            sections.forEach(section => {
-                section.classList.remove('active');
-            });
-
-            // Show selected section
-            const activeSection = document.getElementById(`${sectionId}-section`);
-            if (activeSection) {
-                activeSection.classList.add('active');
-            }
+            const sectionId = this.getAttribute('data-id');
+            activateSection(sectionId);
+            // Update URL hash without triggering scroll
+            history.pushState(null, null, `#${sectionId}`);
         });
     });
 
-    // Stock search functionality
-    const stockSearchBtn = document.getElementById('search-stocks-btn');
-    const stockSearchInput = document.getElementById('stock-search');
-
-    stockSearchBtn.addEventListener('click', function() {
-        const searchTerm = stockSearchInput.value.trim();
-        if (searchTerm) {
-            // Placeholder for stock search logic
-            console.log('Searching for stocks:', searchTerm);
-            // TODO: Implement actual stock search functionality
-        }
-    });
-
-    // Transaction search functionality
-    const transactionSearchBtn = document.getElementById('search-transactions-btn');
-    const transactionSearchInput = document.getElementById('transaction-search');
-
-    transactionSearchBtn.addEventListener('click', function() {
-        const searchTerm = transactionSearchInput.value.trim();
-        if (searchTerm) {
-            // Placeholder for transaction search logic
-            console.log('Searching for transactions:', searchTerm);
-            // TODO: Implement actual transaction search functionality
-        }
-    });
-
-    // Stock API Settings
-    const stockApiSettingsBtn = document.getElementById('stock-api-settings-btn');
-    const stockApiSettingsModal = document.getElementById('stock-api-settings-modal');
-    const stockApiSettingsForm = document.getElementById('stock-api-settings-form');
-
-    stockApiSettingsBtn.addEventListener('click', function() {
-        stockApiSettingsModal.classList.remove('hidden');
-    });
-
-    stockApiSettingsForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const apiKey = document.getElementById('stock-api-key').value;
-        const provider = document.getElementById('stock-api-provider').value;
-        const interval = document.getElementById('update-interval').value;
-
-        // Save API settings to server
-        fetch('/apps/finance_tracker/api/v1/settings/stock-api', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'requesttoken': OC.requestToken
-            },
-            body: JSON.stringify({
-                apiKey: apiKey,
-                provider: provider,
-                updateInterval: interval
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                stockApiSettingsModal.classList.add('hidden');
-                // Refresh stock data with new API key
-                updateStockPrices();
-            } else {
-                throw new Error('Failed to save API settings');
-            }
-        })
-        .catch(error => {
-            console.error('Error saving API settings:', error);
-            // Show error notification
-            OC.Notification.showTemporary(t('finance_tracker', 'Failed to save API settings'));
-        });
-    });
-
-    function updateStockPrices() {
-        // Implement the stock price update logic here
-        console.log('Updating stock prices...');
+    // Handle initial load and browser back/forward
+    function handleHashChange() {
+        const hash = window.location.hash.substring(1) || 'dashboard';
+        activateSection(hash);
     }
+
+    window.addEventListener('hashchange', handleHashChange);
+    handleHashChange(); // Handle initial load
+
+    // Modal handling
+    const modalOverlay = document.getElementById('modal-overlay');
+    const modals = document.querySelectorAll('.modal');
+    
+    // Generic function to show modal
+    function showModal(modalId) {
+        modalOverlay.classList.remove('hidden');
+        document.getElementById(modalId).classList.remove('hidden');
+    }
+
+    // Generic function to hide all modals
+    function hideModals() {
+        modalOverlay.classList.add('hidden');
+        modals.forEach(modal => modal.classList.add('hidden'));
+    }
+
+    // Add Investment button
+    const addInvestmentBtn = document.getElementById('add-investment-btn');
+    if (addInvestmentBtn) {
+        addInvestmentBtn.addEventListener('click', () => showModal('investment-modal'));
+    }
+
+    // Add Budget button
+    const addBudgetBtn = document.getElementById('add-budget-btn');
+    if (addBudgetBtn) {
+        addBudgetBtn.addEventListener('click', () => showModal('budget-modal'));
+    }
+
+    // Stock search
+    const stockSearchBtn = document.getElementById('stock-search-btn');
+    const stockSearchInput = document.getElementById('stock-search-input');
+
+    if (stockSearchBtn && stockSearchInput) {
+        stockSearchBtn.addEventListener('click', function() {
+            const searchTerm = stockSearchInput.value.trim();
+            if (searchTerm) {
+                // Show loading state
+                const resultsTable = document.getElementById('stock-search-results');
+                resultsTable.classList.remove('hidden');
+                // TODO: Implement actual stock search API call
+            }
+        });
+    }
+
+    // Close modal buttons
+    document.querySelectorAll('.cancel, .close-modal').forEach(button => {
+        button.addEventListener('click', hideModals);
+    });
+
+    // Form submissions
+    const forms = {
+        'investment-form': '/apps/finance_tracker/api/v1/investments',
+        'budget-form': '/apps/finance_tracker/api/v1/budgets',
+        'transaction-form': '/apps/finance_tracker/api/v1/transactions'
+    };
+
+    Object.entries(forms).forEach(([formId, endpoint]) => {
+        const form = document.getElementById(formId);
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+
+                fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'requesttoken': OC.requestToken
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        hideModals();
+                        // Refresh the relevant section
+                        // TODO: Implement refresh logic
+                    } else {
+                        throw new Error(data.message || 'Failed to save');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    OC.Notification.showTemporary(t('finance_tracker', 'Failed to save: {error}', {error: error.message}));
+                });
+            });
+        }
+    });
+
+    // Initialize the dashboard data
+    function loadDashboardData() {
+        const sections = ['accounts-summary', 'recent-transactions', 'budget-overview'];
+        sections.forEach(section => {
+            fetch(`/apps/finance_tracker/api/v1/dashboard/${section}`)
+                .then(response => response.json())
+                .then(data => {
+                    const element = document.getElementById(`dashboard-${section}`);
+                    if (element) {
+                        // TODO: Implement proper data rendering for each section
+                        element.innerHTML = JSON.stringify(data, null, 2);
+                    }
+                })
+                .catch(error => {
+                    console.error(`Error loading ${section}:`, error);
+                });
+        });
+    }
+
+    // Load initial dashboard data
+    loadDashboardData();
 });
 </script>
