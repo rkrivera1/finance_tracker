@@ -3,33 +3,34 @@ script('finance_tracker', 'script');
 style('finance_tracker', 'style');
 ?>
 
-<div id="app-navigation">
-    <ul>
-        <li data-id="dashboard">
-            <a href="#dashboard">
-                <span class="icon-home"></span>
-                <span><?php p($l->t('Dashboard')); ?></span>
-            </a>
-        </li>
-        <li data-id="transactions">
-            <a href="#transactions">
-                <span class="icon-history"></span>
-                <span><?php p($l->t('Transactions')); ?></span>
-            </a>
-        </li>
-        <li data-id="investments">
-            <a href="#investments">
-                <span class="icon-category-office"></span>
-                <span><?php p($l->t('Investments')); ?></span>
-            </a>
-        </li>
-        <li data-id="budget">
-            <a href="#budget">
-                <span class="icon-category-monitoring"></span>
-                <span><?php p($l->t('Budget')); ?></span>
-            </a>
-        </li>
-    </ul>
+<div id="app">
+    <div id="app-navigation">
+        <ul>
+            <li>
+                <a href="#" class="active" data-section="dashboard">
+                    <img alt="" src="/apps/finance_tracker/img/app-dark.svg" class="app-icon">
+                    <?php p($l->t('Dashboard')); ?>
+                </a>
+            </li>
+            <li>
+                <a href="#" data-section="transactions">
+                    <span class="icon-history"></span>
+                    <?php p($l->t('Transactions')); ?>
+                </a>
+            </li>
+            <li>
+                <a href="#" data-section="investments">
+                    <span class="icon-category-office"></span>
+                    <?php p($l->t('Investments')); ?>
+                </a>
+            </li>
+            <li>
+                <a href="#" data-section="budget">
+                    <span class="icon-category-monitoring"></span>
+                    <?php p($l->t('Budget')); ?>
+                </a>
+            </li>
+        </ul>
     
     <div id="app-settings">
         <div id="app-settings-header">
@@ -37,36 +38,41 @@ style('finance_tracker', 'style');
                 <?php p($l->t('Settings')); ?>
             </button>
         </div>
-        <div id="app-settings-content">
-            <!-- Settings options will go here -->
+        <div id="app-settings-content" class="hidden">
+            <!-- Settings content -->
         </div>
     </div>
 </div>
 
+
+
 <div id="app-content">
-
-
-    <div id="app-content-wrapper">
-        <div id="emptycontent" class="emptycontent hidden">
+    <!-- Content sections -->
+        <!-- Empty Content Message -->
+        <div id="emptycontent" class="hidden">
             <div class="icon-folder"></div>
             <h2><?php p($l->t('No data available')); ?></h2>
             <p><?php p($l->t('Start by adding your first transaction or budget.')); ?></p>
         </div>
 
+        <!-- Content Sections -->
+        <div id="app-content-sections">
+
         <!-- Dashboard Section -->
         <div id="dashboard-section" class="section active">
-            <div class="app-content-list">
-                <div class="section-header">
-                    <h2><?php p($l->t('Financial Overview')); ?></h2>
-                </div>
+            <div class="section-header">
+                <h2><?php p($l->t('Financial Dashboard')); ?></h2>
+            </div>
+            <div class="section-content">
                 <div class="grid-row">
                     <div class="grid-item">
                         <div class="content-card">
-                            <div class="content-card-header">
-                                <h3><?php p($l->t('Account Summary')); ?></h3>
-                            </div>
-                            <div class="content-card-body" id="dashboard-accounts-summary">
-                                <div class="icon-loading-small"></div>
+                            <h3><?php p($l->t('Account Summary')); ?></h3>
+                            <div id="dashboard-accounts-summary">
+                                <div class="loading">
+                                    <span class="icon-loading"></span>
+                                    <p><?php p($l->t('Loading account summary...')); ?></p>
+                                </div>
                             </div>
                         </div>
                     </div>

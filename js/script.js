@@ -1,52 +1,146 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize navigation handling
-    initNavigation();
-    
-    // Show dashboard by default
-    showSection('dashboard');
+    // Initialize Nextcloud components
+    if (OCA.Files) {
+        OCA.Files.fileActions.registerAction({
+            name: 'finance',
+            displayName: t('finance_tracker', 'Finance'),
+            mime: 'application/json',
+            permissions: OC.PERMISSION_READ,
+            icon: OC.imagePath('finance_tracker', 'app-dark'),
+            actionHandler: function(fileName, context) {
+                // Handle file actions if needed
+            }
+        });
+    }
 
     // Navigation handling
-    const navLinks = document.querySelectorAll('#app-navigation a');
-    const sections = document.querySelectorAll('.finance-section');
-    const modalOverlay = document.getElementById('modal-overlay');
+    const navItems = document.querySelectorAll('#app-navigation li a');
+    navItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const sectionId = this.getAttribute('href').substring(1);
+            
+            // Update navigation state
+            navItems.forEach(nav => nav.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Update sections visibility
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.toggle('active', section.id === `${sectionId}-section`);
+            });
 
-    // Section Navigation
-    function setupSectionNavigation() {
-        const navLinks = document.querySelectorAll('#app-navigation a');
-        const sections = document.querySelectorAll('.finance-section');
+            // Update URL without page reload
+            window.history.pushState({}, '', `?view=${sectionId}`);
+        });
+    });
 
-        // Show dashboard by default
-        showSection('dashboard');
+    // Initialize settings menu
+    if (typeof OC.Settings !== 'undefined') {
+        OC.Settings.setupMenus();
+    }
 
-        navLinks.forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                const sectionId = this.getAttribute('data-section');
-                
-                // Update active state
-                navLinks.forEach(navLink => navLink.classList.remove('active'));
-                this.classList.add('active');
+    // Modal handlers
+    const modalButtons = {
+        'add-investment-btn': 'investment-modal',
+        'add-budget-btn': 'budget-modal',
+        'stock-api-settings-btn': 'stock-api-settings-modal',
+        'add-transaction-btn': 'transaction-modal'
+    };
 
-                // Show selected section
-                showSection(sectionId);
+    // Setup modal triggers
+    Object.entries(modalButtons).forEach(([btnId, modalId]) => {
+        const button = document.getElementById(btnId);
+        const modal = document.getElementById(modalId);
+        if (button && modal) {
+            button.addEventListener('click', () => {
+                document.getElementById('modal-overlay').classList.remove('hidden');
+                modal.classList.remove('hidden');
+            });
+        }
+    });
+
+    // Close modal handlers
+    document.querySelectorAll('.modal .cancel, .modal .close-modal').forEach(button => {
+        button.addEventListener('click', () => {
+            document.getElementById('modal-overlay').classList.add('hidden');
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.classList.add('hidden');
             });
         });
+    });
 
-        function showSection(sectionId) {
-            // Hide all sections
-            sections.forEach(section => {
-                section.style.display = 'none';
+    // Form submissions
+    const forms = {
+        'investment-form': '/apps/finance_tracker/api/v1/investments',
+        'budget-form': '/apps/finance_tracker/api/v1/budgets',
+        'transaction-form': '/apps/finance_tracker/api/v1/transactions',
+        'stock-api-settings-form': '/apps/finance_tracker/api/v1/settings'
+    };
+
+    Object.entries(forms).forEach(([formId, endpoint]) => {
+        const form = document.getElementById(formId);
+        if (form) {
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const formData = new FormData(form);
+                
+                try {
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'requesttoken': OC.requestToken
+                        },
+                        body: JSON.stringify(Object.fromEntries(formData))
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+
+                    const data = await response.json();
+                    if (data.status === 'success') {
+                        // Hide modal
+                        document.getElementById('modal-overlay').classList.add('hidden');
+                        document.querySelectorAll('.modal').forEach(modal => {
+                            modal.classList.add('hidden');
+                        });
+                        
+                        // Show success message
+                        OC.Notification.showTemporary(t('finance_tracker', 'Changes saved successfully'));
+                        
+                        // Refresh relevant section
+                        refreshCurrentSection();
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    OC.Notification.showTemporary(t('finance_tracker', 'Error saving changes'));
+                }
             });
+        }
+    });
 
-            // Show selected section
-            const selectedSection = document.getElementById(`${sectionId}-section`);
-            if (selectedSection) {
-                selectedSection.style.display = 'block';
-            }
+    // Handle initial load
+    function handleInitialLoad() {
+        const hash = window.location.hash.substring(1) || 'dashboard';
+        showSection(hash);
+    }
+
+    // Refresh current section data
+    function refreshCurrentSection() {
+        const currentSection = document.querySelector('.section.active');
+        if (currentSection) {
+            const sectionId = currentSection.id.replace('-section', '');
+            // Implement refresh logic based on section
+            console.log('Refreshing section:', sectionId);
+            // TODO: Add specific refresh logic for each section
         }
     }
 
-    setupSectionNavigation();
+    // Initialize
+    handleInitialLoad();
+    window.addEventListener('hashchange', handleInitialLoad);
+
 
     // Show the first section by default
     function showDefaultSection() {

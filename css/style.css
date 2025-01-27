@@ -23,50 +23,34 @@
     --color-primary-element: #007bff;
 }
 
-/* Global Styles */
-body {
-    background-color: var(--color-background);
-    color: var(--color-text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-}
-
-/* Full Screen and Responsive Layout */
-html, body {
+/* Base app structure */
+.app-finance-tracker {
+    width: 100%;
     height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-}
-
-#app {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
     display: flex;
+    position: relative;
 }
 
+/* Navigation styling */
 #app-navigation {
     width: 250px;
     height: 100%;
-    float: left;
-    box-sizing: border-box;
+    position: fixed;
+    left: 0;
+    top: 50px; /* Leave space for Nextcloud header */
     background-color: var(--color-main-background);
-    padding-bottom: 44px;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
     border-right: 1px solid var(--color-border);
 }
 
 #app-content {
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
-    padding: 20px;
+    flex-grow: 1;
+    margin-left: 250px;
+    margin-top: 50px; /* Match Nextcloud header height */
+    background-color: var(--color-background);
 }
+
+
+
 
 .finance-section {
     height: 100%;
@@ -143,48 +127,45 @@ html, body {
 /* Finance Tracker App Styles */
 /* Sidebar Navigation Styling */
 #app-navigation ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
+    position: relative;
+    height: 100%;
+    width: inherit;
+    overflow: auto;
+    box-sizing: border-box;
+    padding-bottom: 44px;
 }
 
 #app-navigation li {
     position: relative;
-    width: 100%;
-    box-sizing: border-box;
 }
 
-#app-navigation li > a {
-    display: block;
-    width: 100%;
-    line-height: 44px;
-    min-height: 44px;
+#app-navigation li a {
+    display: flex;
+    align-items: center;
+    height: 44px;
     padding: 0 12px;
-    overflow: hidden;
-    box-sizing: border-box;
-    white-space: nowrap;
-    text-overflow: ellipsis;
     color: var(--color-main-text);
-    opacity: .57;
+    opacity: 0.7;
+    width: 100%;
+    text-decoration: none;
 }
 
-#app-navigation a::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background-color: transparent;
-    transition: background-color 0.2s ease;
-}
-
-#app-navigation li:hover > a,
-#app-navigation li:focus > a,
-#app-navigation li.active > a {
+#app-navigation li a:hover,
+#app-navigation li a:focus,
+#app-navigation li a.active {
     opacity: 1;
     background-color: var(--color-background-hover);
 }
+
+
+#app-navigation li > a span[class^='icon-'] {
+    margin-right: 10px;
+    width: 16px;
+    height: 16px;
+    background-size: 16px;
+    opacity: .7;
+}
+
 
 #app-navigation a.active::before {
     background-color: var(--color-primary);
@@ -250,35 +231,108 @@ html, body {
     display: flex;
     align-items: center;
     padding: 0 20px;
-    margin-bottom: 20px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.section-content {
+    padding: 20px;
 }
 
 .grid-row {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 20px;
+    margin-bottom: 20px;
+}
+
+/* Content area */
+.section {
     padding: 20px;
+    height: 100%;
+    box-sizing: border-box;
+    overflow-y: auto;
 }
 
 .content-card {
     background-color: var(--color-main-background);
     border-radius: var(--border-radius);
     box-shadow: var(--color-box-shadow);
+    margin-bottom: 20px;
 }
 
-.content-card-header {
+.section-header {
     padding: 12px 16px;
     border-bottom: 1px solid var(--color-border);
 }
 
-.content-card-body {
-    padding: 16px;
+
+.loading {
+    text-align: center;
+    padding: 20px;
 }
 
-.icon-loading-small {
-    background-size: 16px;
-    padding: 16px;
-    margin: 10px auto;
+.loading .icon-loading {
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+/* Button states */
+.button:hover,
+.button:focus,
+button:hover,
+button:focus {
+    background-color: var(--color-primary-element-light);
+    cursor: pointer;
+}
+
+.button:active,
+button:active {
+    background-color: var(--color-primary-element-dark);
+    transform: translateY(1px);
+}
+
+/* Modal animations */
+.modal {
+    transition: all 0.2s ease;
+    transform: scale(0.95);
+    opacity: 0;
+}
+
+.modal:not(.hidden) {
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* Active navigation states */
+#app-navigation li a.active,
+#app-navigation li a:hover,
+#app-navigation li a:focus {
+    opacity: 1;
+    background-color: var(--color-background-hover);
+}
+
+/* Interactive form elements */
+.input-field:focus,
+.select-field:focus,
+textarea:focus {
+    border-color: var(--color-primary);
+    outline: none;
+}
+
+/* Loading states */
+.loading-indicator {
+    text-align: center;
+    padding: 20px;
+}
+
+.icon-loading {
+    display: inline-block;
+    animation: rotate 1s infinite linear;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 .item-list {

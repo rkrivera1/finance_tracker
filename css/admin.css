@@ -1,29 +1,28 @@
-.setting-item {
-    margin-bottom: 20px;
+.finance-tracker-admin-settings {
+    max-width: 600px;
 }
 
-.setting-item label {
+.finance-tracker-admin-settings .form-group {
+    margin-bottom: 15px;
+}
+
+.finance-tracker-admin-settings label {
     display: block;
     margin-bottom: 5px;
     font-weight: bold;
 }
 
-.setting-item input {
+.finance-tracker-admin-settings .form-control {
     width: 100%;
     max-width: 400px;
-    margin-bottom: 5px;
 }
 
-.setting-hint {
+.finance-tracker-admin-settings .help-block {
     color: var(--color-text-maxcontrast);
     font-size: 0.9em;
     margin-top: 5px;
 }
 
-.settings-group {
-    margin-bottom: 30px;
+.finance-tracker-admin-settings input[type="submit"] {
+    margin-top: 20px;
 }
-
-.settings-group h3 {
-    margin-bottom: 15px;
-} 
