@@ -3,31 +3,38 @@
       xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
     <id>finance_tracker</id>
     <name>Finance Tracker</name>
-    <summary>Track your finances and investments</summary>
-    <description><![CDATA[A comprehensive finance tracking app for Nextcloud]]></description>
-    <version>0.0.4</version>
+    <summary>Comprehensive financial management and tracking</summary>
+    <description><![CDATA[A powerful Nextcloud app to manage your personal finances, track investments, monitor budgets, and gain insights into your financial health.
+
+Key Features:
+- Transaction tracking
+- Investment portfolio management
+- Budget planning and monitoring
+- Detailed financial reports
+- Secure and private financial data storage
+]]></description>
+    <version>1.0.3</version>
     <licence>agpl</licence>
     <author>Juan Rivera</author>
     <namespace>FinanceTracker</namespace>
     <category>tools</category>
+    <category>finance</category>
     <website>https://github.com/rkrivera1/nextcloud-finance-tracker</website>
     <bugs>https://github.com/rkrivera1/nextcloud-finance-tracker/issues</bugs>
+    <repository type="git">https://github.com/rkrivera1/nextcloud-finance-tracker.git</repository>
     <dependencies>
-        <nextcloud min-version="20" max-version="30"/>
-        <php min-version="7.4"/>
+        <nextcloud min-version="24" max-version="30"/>
+        <php min-version="8.1"/>
     </dependencies>
     <settings>
         <admin>OCA\FinanceTracker\Settings\AdminSettings</admin>
+        <personal>OCA\FinanceTracker\Settings\PersonalSettings</personal>
     </settings>
     <navigations>
         <navigation>
             <name>Finance Tracker</name>
             <route>finance_tracker.page.index</route>
-            <icon>app-dark.svg</icon>
-            <order>4</order>
+            <icon>app.svg</icon>
         </navigation>
     </navigations>
-    <migrations>
-        <migration>OCA\FinanceTracker\Migrations\Version20250122000000</migration>
-    </migrations>
 </info>

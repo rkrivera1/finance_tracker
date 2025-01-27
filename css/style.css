@@ -23,6 +23,107 @@
     --color-primary-element: #007bff;
 }
 
+/* Nextcloud App Base Styling */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+    color: var(--color-text);
+    background-color: var(--color-main-background);
+}
+
+#app {
+    display: flex;
+    height: 100vh;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+#app-navigation {
+    width: 250px;
+    background-color: var(--color-main-background);
+    border-right: 1px solid var(--color-border);
+    overflow-y: auto;
+}
+
+#app-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background-color: var(--color-background);
+}
+
+/* Navigation Styling */
+#app-navigation ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#app-navigation .nav-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+#app-navigation .nav-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+#app-navigation .nav-item.active {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary-text);
+}
+
+/* Button Styling */
+.btn, button {
+    background-color: var(--color-primary);
+    color: var(--color-primary-text);
+    border: none;
+    border-radius: 3px;
+    padding: 8px 15px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn:hover, button:hover {
+    background-color: var(--color-primary-light);
+}
+
+/* Card Styling */
+.card {
+    background-color: white;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    padding: 15px;
+}
+
+.card-title {
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: var(--color-text);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    #app {
+        flex-direction: column;
+    }
+
+    #app-navigation {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    #app-content {
+        margin-left: 0;
+    }
+}
+
 /* App base structure */
 #app-navigation {
     width: 250px;
@@ -49,11 +150,6 @@
     height: 100%;
     position: relative;
 }
-
-
-
-
-
 
 .finance-section {
     height: 100%;
