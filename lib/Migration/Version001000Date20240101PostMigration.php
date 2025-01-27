@@ -6,23 +6,40 @@ use OCP\Migration\IRepairStep;
 use OCP\IContainer;
 
 class Version001000Date20240101PostMigration implements IRepairStep {
-    private $container;
+    /** @var SampleDataSeeder */
+    private $sampleDataSeeder;
 
-    public function __construct(IContainer $container) {
-        $this->container = $container;
+    /**
+     * Constructor
+     *
+     * @param SampleDataSeeder $sampleDataSeeder Dependency for seeding sample data
+     */
+    public function __construct(SampleDataSeeder $sampleDataSeeder) {
+        $this->sampleDataSeeder = $sampleDataSeeder;
     }
 
+    /**
+     * Get the name of this repair step
+     *
+     * @return string
+     */
     public function getName() {
         return 'Finance Tracker Sample Data Seeder';
     }
 
+    /**
+     * Run the repair step
+     *
+     * @param IOutput $output Migration output interface
+     */
     public function run(IOutput $output) {
         try {
-            $sampleDataSeeder = $this->container->get(SampleDataSeeder::class);
-            $sampleDataSeeder->seedSampleData();
+            $this->sampleDataSeeder->seedSampleData();
             $output->info('Successfully seeded sample data for Finance Tracker');
         } catch (\Throwable $e) {
             $output->error('Failed to seed sample data: ' . $e->getMessage());
+            // Log the full exception for debugging
+            $output->error('Exception trace: ' . $e->getTraceAsString());
         }
     }
 }
