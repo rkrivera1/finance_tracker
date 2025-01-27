@@ -20,6 +20,35 @@ class Application extends App implements IBootstrap {
         LoggerInterface $logger = null
     ) {
         $this->logger = $logger;
+
+        // Explicit autoload path detection
+        $possiblePaths = [
+            __DIR__ . '/../../vendor/autoload.php',
+            __DIR__ . '/../../../vendor/autoload.php',
+            '/var/www/nextcloud/apps/finance_tracker/vendor/autoload.php',
+            '/var/www/html/nextcloud/apps/finance_tracker/vendor/autoload.php'
+        ];
+
+        $autoloaderFound = false;
+        foreach ($possiblePaths as $path) {
+            if (file_exists($path)) {
+                require_once $path;
+                $autoloaderFound = true;
+                break;
+            }
+        }
+
+        if (!$autoloaderFound) {
+            // Detailed error logging
+            if ($this->logger) {
+                $this->logger->error("Finance Tracker Autoload Error: Composer autoload not found. Checked paths: " . implode(', ', $possiblePaths));
+            } else {
+                error_log("Finance Tracker Autoload Error: Composer autoload not found. Checked paths: " . implode(', ', $possiblePaths));
+            }
+            throw new \Exception("Composer autoload not found. Please run 'composer install' in the app directory.\n" . 
+                "Checked paths: " . implode(', ', $possiblePaths));
+        }
+
         parent::__construct(self::APP_ID, $urlParams);
     }
 

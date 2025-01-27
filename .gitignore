@@ -1,7 +1,7 @@
 # Nextcloud App Development Gitignore
 
-# Composer dependencies
-/vendor/
+# Remove vendor/ ignore to track Composer dependencies
+# /vendor/
 composer.phar
 composer.lock
 
