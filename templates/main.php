@@ -2,16 +2,16 @@
 script('finance_tracker', 'script');
 style('finance_tracker', 'style');
 ?>
-<div id="content" class="app-financetracker">
+<div id="content" class="app-financetracker nc-app">
     <div id="app-navigation-toggle" class="icon-menu"></div>
     
     <div id="app" class="finance-tracker-app">
         <div id="app-navigation" class="app-navigation">
-            <ul class="app-navigation-list">
-                <li class="app-navigation-item">
-                    <a href="#" class="app-navigation-entry-link" data-section="dashboard">
-                        <span class="app-navigation-entry-icon icon-home"></span>
-                        <span class="app-navigation-entry-text"><?php p($l->t('Dashboard')); ?></span>
+            <ul class="with-icon">
+                <li class="nav-item">
+                    <a href="#" class="nav-icon-text" data-section="dashboard">
+                        <span class="icon-home"></span>
+                        <span class="nav-text"><?php p($l->t('Dashboard')); ?></span>
                     </a>
                 </li>
                 <?php print_unescaped($this->inc('navigation')); ?>
