@@ -9,126 +9,101 @@ use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use OCP\IRequest;
 use OCP\IDBConnection;
 use OCP\IUserSession;
-
-use OCA\FinanceTracker\Controller\PageController;
-use OCA\FinanceTracker\Controller\AccountController;
-use OCA\FinanceTracker\Controller\BudgetController;
-use OCA\FinanceTracker\Controller\TransactionController;
-use OCA\FinanceTracker\Controller\InvestmentController;
-
-use OCA\FinanceTracker\Db\AccountMapper;
-use OCA\FinanceTracker\Db\BudgetMapper;
-use OCA\FinanceTracker\Db\TransactionMapper;
-use OCA\FinanceTracker\Db\InvestmentMapper;
-
-use OCP\INavigationManager;
-use OCP\IURLGenerator;
-use OCP\IL10N;
-use Exception;
+use Psr\Log\LoggerInterface;
 
 class Application extends App implements IBootstrap {
     public const APP_ID = 'finance_tracker';
+    private $logger;
 
-    public function __construct(array $urlParams = []) {
-        // Explicit autoload path
-        $autoloadPath = __DIR__ . '/../../vendor/autoload.php';
-        
-        if (file_exists($autoloadPath)) {
-            require_once $autoloadPath;
-        } else {
-            // Log a clear error message
-            error_log("Finance Tracker Autoload Error: Composer autoload not found at $autoloadPath");
-            throw new \Exception("Composer autoload not found. Please run 'composer install'.");
-        }
-
+    public function __construct(
+        array $urlParams = [], 
+        LoggerInterface $logger = null
+    ) {
+        $this->logger = $logger;
         parent::__construct(self::APP_ID, $urlParams);
     }
 
+    private function logError($message, $context = []) {
+        if ($this->logger) {
+            $this->logger->error($message, $context);
+        } else {
+            error_log($message . ' ' . json_encode($context));
+        }
+    }
+
     public function register(IRegistrationContext $context): void {
-        // Simplified service registration with error handling
         try {
-            $context->registerService('AccountMapper', function($c) {
-                return new \OCA\FinanceTracker\Db\AccountMapper(
-                    $c->query(IDBConnection::class)
-                );
-            });
-
-            $context->registerService('BudgetMapper', function($c) {
-                return new \OCA\FinanceTracker\Db\BudgetMapper(
-                    $c->query(IDBConnection::class)
-                );
-            });
-
-            $context->registerService('TransactionMapper', function($c) {
-                return new \OCA\FinanceTracker\Db\TransactionMapper(
-                    $c->query(IDBConnection::class)
-                );
-            });
-
-            $context->registerService('InvestmentMapper', function($c) {
-                return new \OCA\FinanceTracker\Db\InvestmentMapper(
-                    $c->query(IDBConnection::class)
-                );
-            });
-
-            // Register Controllers
-            $context->registerService('PageController', function($c) {
-                return new \OCA\FinanceTracker\Controller\PageController(
-                    self::APP_ID,
-                    $c->query(IRequest::class)
-                );
-            });
-
-            $context->registerService('AccountController', function($c) {
-                return new \OCA\FinanceTracker\Controller\AccountController(
-                    self::APP_ID,
-                    $c->query(IRequest::class),
-                    $c->query('AccountMapper'),
-                    $c->query(IUserSession::class)->getUser()->getUID()
-                );
-            });
-
-            $context->registerService('BudgetController', function($c) {
-                return new \OCA\FinanceTracker\Controller\BudgetController(
-                    self::APP_ID,
-                    $c->query(IRequest::class),
-                    $c->query('BudgetMapper'),
-                    $c->query(IUserSession::class)->getUser()->getUID()
-                );
-            });
-
-            $context->registerService('TransactionController', function($c) {
-                return new \OCA\FinanceTracker\Controller\TransactionController(
-                    self::APP_ID,
-                    $c->query(IRequest::class),
-                    $c->query('TransactionMapper'),
-                    $c->query(IUserSession::class)->getUser()->getUID()
-                );
-            });
-
-            $context->registerService('InvestmentController', function($c) {
-                return new \OCA\FinanceTracker\Controller\InvestmentController(
-                    self::APP_ID,
-                    $c->query(IRequest::class),
-                    $c->query('InvestmentMapper'),
-                    $c->query(IUserSession::class)->getUser()->getUID()
-                );
-            });
+            // Comprehensive service registration with detailed logging
+            $this->registerServices($context);
         } catch (\Throwable $e) {
-            // Log any service registration errors
-            \OC::$server->getLogger()->error(
-                'Finance Tracker Service Registration Error: ' . $e->getMessage(), 
-                [
-                    'app' => self::APP_ID,
-                    'exception' => $e
-                ]
-            );
+            $this->logError('Finance Tracker Registration Error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             throw $e;
         }
     }
 
+    private function registerServices(IRegistrationContext $context): void {
+        // Mappers
+        $mappers = [
+            'AccountMapper' => \OCA\FinanceTracker\Db\AccountMapper::class,
+            'BudgetMapper' => \OCA\FinanceTracker\Db\BudgetMapper::class,
+            'TransactionMapper' => \OCA\FinanceTracker\Db\TransactionMapper::class,
+            'InvestmentMapper' => \OCA\FinanceTracker\Db\InvestmentMapper::class
+        ];
+
+        foreach ($mappers as $serviceName => $mapperClass) {
+            $context->registerService($serviceName, function($c) use ($mapperClass) {
+                return new $mapperClass(
+                    $c->query(IDBConnection::class)
+                );
+            });
+        }
+
+        // Controllers
+        $controllers = [
+            'PageController' => [\OCA\FinanceTracker\Controller\PageController::class, [self::APP_ID, IRequest::class]],
+            'AccountController' => [
+                \OCA\FinanceTracker\Controller\AccountController::class, 
+                [self::APP_ID, IRequest::class, 'AccountMapper', IUserSession::class]
+            ],
+            'BudgetController' => [
+                \OCA\FinanceTracker\Controller\BudgetController::class, 
+                [self::APP_ID, IRequest::class, 'BudgetMapper', IUserSession::class]
+            ],
+            'TransactionController' => [
+                \OCA\FinanceTracker\Controller\TransactionController::class, 
+                [self::APP_ID, IRequest::class, 'TransactionMapper', IUserSession::class]
+            ],
+            'InvestmentController' => [
+                \OCA\FinanceTracker\Controller\InvestmentController::class, 
+                [self::APP_ID, IRequest::class, 'InvestmentMapper', IUserSession::class]
+            ]
+        ];
+
+        foreach ($controllers as $serviceName => [$controllerClass, $dependencies]) {
+            $context->registerService($serviceName, function($c) use ($controllerClass, $dependencies) {
+                $args = [];
+                foreach ($dependencies as $dep) {
+                    if (is_string($dep)) {
+                        if ($dep === self::APP_ID) {
+                            $args[] = self::APP_ID;
+                        } elseif ($dep === IRequest::class) {
+                            $args[] = $c->query(IRequest::class);
+                        } elseif ($dep === IUserSession::class) {
+                            $args[] = $c->query(IUserSession::class)->getUser()->getUID();
+                        } elseif (strpos($dep, 'Mapper') !== false) {
+                            $args[] = $c->query($dep);
+                        }
+                    }
+                }
+                return new $controllerClass(...$args);
+            });
+        }
+    }
+
     public function boot(IBootContext $context): void {
-        // Simplified navigation registration with error handling
         try {
             $context->getAppContainer()
                 ->get(\OCP\INavigationManager::class)
@@ -145,14 +120,11 @@ class Application extends App implements IBootstrap {
                     ];
                 });
         } catch (\Throwable $e) {
-            // Log any navigation registration errors
-            \OC::$server->getLogger()->error(
-                'Finance Tracker Navigation Registration Error: ' . $e->getMessage(),
-                [
-                    'app' => self::APP_ID,
-                    'exception' => $e
-                ]
-            );
+            $this->logError('Finance Tracker Navigation Registration Error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
         }
     }
 }
