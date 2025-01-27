@@ -1,93 +1,99 @@
 <?php
 namespace OCA\FinanceTracker\Controller;
 
-use OCP\IRequest;
-use OCP\AppFramework\Http\DataResponse;
-use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\JSONResponse;
+use OCP\IRequest;
 
 use OCA\FinanceTracker\Db\BudgetMapper;
 
-class BudgetController extends Controller {
-    private $budgetMapper;
-    private $userId;
+class BudgetController extends BaseController {
+    /** @var BudgetMapper */
+    private $mapper;
 
     public function __construct(
-        $appName,
         IRequest $request,
-        BudgetMapper $budgetMapper,
-        $userId
+        BudgetMapper $mapper
     ) {
-        parent::__construct($appName, $request);
-        $this->budgetMapper = $budgetMapper;
-        $this->userId = $userId;
+        parent::__construct('finance_tracker', $request);
+        $this->mapper = $mapper;
     }
 
     /**
+     * Get all budgets
+     *
      * @NoAdminRequired
+     * @NoCSRFRequired
+     * @param array $filters Optional filters for budgets
      */
-    public function index() {
-        return new DataResponse(
-            $this->budgetMapper->findByUser($this->userId)
-        );
-    }
-
-    /**
-     * @NoAdminRequired
-     */
-    public function create($name, $amount, $category, $startDate, $endDate) {
+    public function index($filters = []) {
         try {
-            $budget = $this->budgetMapper->create(
-                $this->userId,
-                $name, 
-                floatval($amount), 
-                $category, 
-                new \DateTime($startDate),
-                new \DateTime($endDate)
-            );
-            return new DataResponse($budget, Http::STATUS_CREATED);
+            $budgets = $this->mapper->findAll($filters);
+            return $this->success($budgets);
         } catch (\Exception $e) {
-            return new DataResponse([
-                'message' => $e->getMessage()
-            ], Http::STATUS_BAD_REQUEST);
+            return $this->error($e->getMessage());
         }
     }
 
     /**
+     * Get budget progress
+     *
      * @NoAdminRequired
+     * @NoCSRFRequired
+     * @param array $filters Optional filters for budget progress
      */
-    public function update($id, $name = null, $amount = null, $category = null, $startDate = null, $endDate = null) {
+    public function progress($filters = []) {
         try {
-            $budget = $this->budgetMapper->find($id);
-            
-            if ($name !== null) $budget->setName($name);
-            if ($amount !== null) $budget->setAmount(floatval($amount));
-            if ($category !== null) $budget->setCategory($category);
-            if ($startDate !== null) $budget->setStartDate(new \DateTime($startDate));
-            if ($endDate !== null) $budget->setEndDate(new \DateTime($endDate));
-            
-            return new DataResponse(
-                $this->budgetMapper->update($budget)
-            );
+            $progress = $this->mapper->getBudgetProgress($filters);
+            return $this->success($progress);
         } catch (\Exception $e) {
-            return new DataResponse([
-                'message' => $e->getMessage()
-            ], Http::STATUS_BAD_REQUEST);
+            return $this->error($e->getMessage());
         }
     }
 
     /**
+     * Create a new budget
+     *
      * @NoAdminRequired
+     * @param array $budgetData Budget details
      */
-    public function destroy($id) {
+    public function create($budgetData) {
         try {
-            $budget = $this->budgetMapper->find($id);
-            $this->budgetMapper->delete($budget);
-            return new DataResponse(null, Http::STATUS_NO_CONTENT);
+            $budget = $this->mapper->insert($budgetData);
+            return $this->success($budget, Http::STATUS_CREATED);
         } catch (\Exception $e) {
-            return new DataResponse([
-                'message' => $e->getMessage()
-            ], Http::STATUS_NOT_FOUND);
+            return $this->error($e->getMessage());
+        }
+    }
+
+    /**
+     * Update an existing budget
+     *
+     * @NoAdminRequired
+     * @param int $id Budget ID
+     * @param array $budgetData Updated budget details
+     */
+    public function update($id, $budgetData) {
+        try {
+            $budget = $this->mapper->update($id, $budgetData);
+            return $this->success($budget);
+        } catch (\Exception $e) {
+            return $this->error($e->getMessage());
+        }
+    }
+
+    /**
+     * Delete a budget
+     *
+     * @NoAdminRequired
+     * @param int $id Budget ID to delete
+     */
+    public function delete($id) {
+        try {
+            $this->mapper->delete($id);
+            return $this->success(null, Http::STATUS_NO_CONTENT);
+        } catch (\Exception $e) {
+            return $this->error($e->getMessage());
         }
     }
 }

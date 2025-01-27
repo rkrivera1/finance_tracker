@@ -20,8 +20,8 @@ class Version001000Date20240101 extends SimpleMigrationStep {
         $schema = $schemaClosure();
 
         // Accounts Table
-        if (!$schema->hasTable('finance_accounts')) {
-            $table = $schema->createTable('finance_accounts');
+        if (!$schema->hasTable('finance_tracker_accounts')) {
+            $table = $schema->createTable('finance_tracker_accounts');
             $table->addColumn('id', 'integer', [
                 'autoincrement' => true,
                 'notnull' => true,
@@ -45,8 +45,17 @@ class Version001000Date20240101 extends SimpleMigrationStep {
                 'scale' => 2,
                 'default' => 0,
             ]);
+            $table->addColumn('created_at', 'datetime', [
+                'notnull' => true,
+            ]);
+            $table->addColumn('updated_at', 'datetime', [
+                'notnull' => false,
+                'default' => null,
+            ]);
+
             $table->setPrimaryKey(['id']);
-            $table->addUniqueIndex(['user_id', 'name'], 'acc_user_name_idx');
+            $table->addUniqueIndex(['user_id', 'name'], 'ft_acct_user_name_idx');
+            $table->addIndex(['user_id'], 'ft_acct_user_idx');
         }
 
         // Transactions Table

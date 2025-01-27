@@ -7,12 +7,12 @@
     <description>
         A comprehensive finance tracking app for Nextcloud
         - Track personal finances
-        - Manage investments
-        - Create budgets
-        - Detailed financial reports
+        - Manage bank accounts
+        - Record transactions
+        - Monitor spending
         - Secure and private financial data storage
     </description>
-    <version>1.0.5</version>
+    <version>1.1.0</version>
     <licence>agpl</licence>
     <author>Juan Rivera</author>
     <namespace>FinanceTracker</namespace>
@@ -21,14 +21,17 @@
     <website>https://github.com/rkrivera1/nextcloud-finance-tracker</website>
     <bugs>https://github.com/rkrivera1/nextcloud-finance-tracker/issues</bugs>
     <repository type="git">https://github.com/rkrivera1/nextcloud-finance-tracker.git</repository>
+    
     <dependencies>
         <nextcloud min-version="24" max-version="30"/>
         <php min-version="8.1"/>
     </dependencies>
+    
     <settings>
         <admin>OCA\FinanceTracker\Settings\AdminSettings</admin>
         <personal>OCA\FinanceTracker\Settings\PersonalSettings</personal>
     </settings>
+    
     <navigations>
         <navigation>
             <name>Finance Tracker</name>
@@ -36,14 +39,13 @@
             <icon>img/app-dark.svg</icon>
         </navigation>
     </navigations>
-    <design>
-        <screenshot>img/app-dark.svg</screenshot>
-    </design>
+    
     <repair-steps>
         <post-migration>
             <step>OCA\FinanceTracker\Migration\Version001000Date20240101PostMigration</step>
         </post-migration>
     </repair-steps>
+    
     <migrations>
         <migration>OCA\FinanceTracker\Migration\Version001000Date20240101</migration>
     </migrations>
