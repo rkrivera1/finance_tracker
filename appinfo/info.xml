@@ -34,8 +34,10 @@ Key Features:
         <navigation>
             <name>Finance Tracker</name>
             <route>finance_tracker.page.index</route>
-            <icon-light>img/app-light.svg</icon-light>
-            <icon-dark>img/app-dark.svg</icon-dark>
+            <icon>img/app-dark.svg</icon>
         </navigation>
     </navigations>
+    <design>
+        <screenshot>img/app-dark.svg</screenshot>
+    </design>
 </info>

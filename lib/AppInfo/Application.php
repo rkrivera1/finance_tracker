@@ -26,9 +26,34 @@ class Application extends App implements IBootstrap {
     public const APP_ID = 'finance_tracker';
 
     public function __construct(array $urlParams = []) {
-        // Check autoload
-        if ((@include_once __DIR__ . '/../../vendor/autoload.php') === false) {
-            throw new Exception('Cannot include autoload. Did you run install dependencies using composer?');
+        // Multiple potential autoload paths
+        $autoloadPaths = [
+            __DIR__ . '/../../vendor/autoload.php',
+            __DIR__ . '/../../../vendor/autoload.php',
+            __DIR__ . '/vendor/autoload.php'
+        ];
+
+        $autoloadFound = false;
+        foreach ($autoloadPaths as $path) {
+            if (file_exists($path)) {
+                require_once $path;
+                $autoloadFound = true;
+                break;
+            }
+        }
+
+        if (!$autoloadFound) {
+            // Log the failure and provide a helpful error message
+            \OC::$server->getLogger()->error(
+                'Composer autoload not found. Please run "composer install" in the app directory.',
+                ['app' => 'finance_tracker']
+            );
+            
+            // Optionally, you can throw a more informative exception
+            throw new \Exception(
+                'Cannot include autoload. Please run "composer install" in the finance_tracker app directory. ' . 
+                'Checked paths: ' . implode(', ', $autoloadPaths)
+            );
         }
 
         parent::__construct(self::APP_ID, $urlParams);
