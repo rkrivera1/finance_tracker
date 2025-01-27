@@ -8,9 +8,11 @@ use OCP\Migration\SimpleMigrationStep;
 
 class Version001000Date20240101 extends SimpleMigrationStep {
     /**
-     * @param IOutput $output
-     * @param Closure $schemaClosure The `\Closure` returns a `ISchemaWrapper`
-     * @param array $options
+     * Create or modify database schema
+     *
+     * @param IOutput $output Migration output interface
+     * @param Closure $schemaClosure Closure that returns schema wrapper
+     * @param array $options Additional options
      * @return null|ISchemaWrapper
      */
     public function changeSchema(IOutput $output, Closure $schemaClosure, array $options) {
@@ -23,6 +25,7 @@ class Version001000Date20240101 extends SimpleMigrationStep {
             $table->addColumn('id', 'integer', [
                 'autoincrement' => true,
                 'notnull' => true,
+                'unsigned' => true,
             ]);
             $table->addColumn('user_id', 'string', [
                 'notnull' => true,
@@ -43,7 +46,7 @@ class Version001000Date20240101 extends SimpleMigrationStep {
                 'default' => 0,
             ]);
             $table->setPrimaryKey(['id']);
-            $table->addIndex(['user_id'], 'finance_accounts_user_idx');
+            $table->addUniqueIndex(['user_id', 'name'], 'acc_user_name_idx');
         }
 
         // Transactions Table
@@ -52,6 +55,7 @@ class Version001000Date20240101 extends SimpleMigrationStep {
             $table->addColumn('id', 'integer', [
                 'autoincrement' => true,
                 'notnull' => true,
+                'unsigned' => true,
             ]);
             $table->addColumn('user_id', 'string', [
                 'notnull' => true,
@@ -59,6 +63,7 @@ class Version001000Date20240101 extends SimpleMigrationStep {
             ]);
             $table->addColumn('account_id', 'integer', [
                 'notnull' => true,
+                'unsigned' => true,
             ]);
             $table->addColumn('date', 'datetime', [
                 'notnull' => true,
@@ -76,8 +81,9 @@ class Version001000Date20240101 extends SimpleMigrationStep {
                 'notnull' => false,
             ]);
             $table->setPrimaryKey(['id']);
-            $table->addIndex(['user_id'], 'finance_transactions_user_idx');
-            $table->addIndex(['account_id'], 'finance_transactions_account_idx');
+            $table->addIndex(['user_id'], 'tx_user_idx');
+            $table->addIndex(['account_id'], 'tx_acc_idx');
+            $table->addIndex(['date'], 'tx_date_idx');
         }
 
         // Investments Table
@@ -86,6 +92,7 @@ class Version001000Date20240101 extends SimpleMigrationStep {
             $table->addColumn('id', 'integer', [
                 'autoincrement' => true,
                 'notnull' => true,
+                'unsigned' => true,
             ]);
             $table->addColumn('user_id', 'string', [
                 'notnull' => true,
@@ -113,8 +120,9 @@ class Version001000Date20240101 extends SimpleMigrationStep {
                 'notnull' => true,
             ]);
             $table->setPrimaryKey(['id']);
-            $table->addIndex(['user_id'], 'finance_investments_user_idx');
-            $table->addIndex(['symbol'], 'finance_investments_symbol_idx');
+            $table->addIndex(['user_id'], 'inv_user_idx');
+            $table->addIndex(['symbol'], 'inv_sym_idx');
+            $table->addUniqueIndex(['user_id', 'symbol', 'purchase_date'], 'inv_unique_idx');
         }
 
         // Budgets Table
@@ -123,6 +131,7 @@ class Version001000Date20240101 extends SimpleMigrationStep {
             $table->addColumn('id', 'integer', [
                 'autoincrement' => true,
                 'notnull' => true,
+                'unsigned' => true,
             ]);
             $table->addColumn('user_id', 'string', [
                 'notnull' => true,
@@ -142,7 +151,8 @@ class Version001000Date20240101 extends SimpleMigrationStep {
                 'length' => 20,
             ]);
             $table->setPrimaryKey(['id']);
-            $table->addIndex(['user_id'], 'finance_budgets_user_idx');
+            $table->addIndex(['user_id'], 'budg_user_idx');
+            $table->addUniqueIndex(['user_id', 'category', 'period'], 'budg_unique_idx');
         }
 
         return $schema;
