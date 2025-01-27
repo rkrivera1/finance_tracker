@@ -19,11 +19,18 @@ use OCA\FinanceTracker\Db\InvestmentMapper;
 
 use OCP\INavigationManager;
 use OCP\IURLGenerator;
+use OCP\IL10N;
+use Exception;
 
 class Application extends App implements IBootstrap {
     public const APP_ID = 'finance_tracker';
 
     public function __construct(array $urlParams = []) {
+        // Check autoload
+        if ((@include_once __DIR__ . '/../../vendor/autoload.php') === false) {
+            throw new Exception('Cannot include autoload. Did you run install dependencies using composer?');
+        }
+
         parent::__construct(self::APP_ID, $urlParams);
     }
 
@@ -99,16 +106,20 @@ class Application extends App implements IBootstrap {
     }
 
     public function boot(IBootContext $context): void {
-        $container = $this->getContainer();
-        $container->query(INavigationManager::class)->add(function () use ($container) {
-            $urlGenerator = $container->query(IURLGenerator::class);
+        // Register navigation entry
+        $context->getAppContainer()->get(INavigationManager::class)->add(function () use ($context) {
+            $urlGenerator = $context->getAppContainer()->get(IURLGenerator::class);
+            $l10n = $context->getAppContainer()->get(IL10N::class);
+
             return [
                 'id' => self::APP_ID,
                 'order' => 10,
-                'href' => $urlGenerator->linkToRoute(self::APP_ID . '.page.index'),
-                'icon' => $urlGenerator->imagePath(self::APP_ID, 'app.svg'),
-                'name' => 'Finance Tracker',
+                'href' => $urlGenerator->linkToRoute('finance_tracker.page.index'),
+                'icon' => $urlGenerator->imagePath(self::APP_ID, 'app-dark.svg'),
+                'name' => $l10n->t('Finance Tracker')
             ];
         });
+
+        // You can add additional boot-time configurations here
     }
 }
