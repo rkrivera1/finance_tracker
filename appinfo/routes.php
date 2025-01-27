@@ -18,6 +18,11 @@ return [
 
         // Investment Routes
         ['name' => 'investment#index', 'url' => '/investments', 'verb' => 'GET'],
-        ['name' => 'investment#create', 'url' => '/investments', 'verb' => 'POST']
+        ['name' => 'investment#create', 'url' => '/investments', 'verb' => 'POST'],
+
+        // Stock API routes
+        ['name' => 'stock_api#search', 'url' => '/api/stocks/search', 'verb' => 'POST'],
+        ['name' => 'stock_api#getPrices', 'url' => '/api/stocks/prices', 'verb' => 'POST'],
+        ['name' => 'stock_api#getDetails', 'url' => '/api/stocks/details', 'verb' => 'GET'],
     ]
 ];

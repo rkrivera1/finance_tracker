@@ -1,4 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize navigation handling
+    initNavigation();
+    
+    // Show dashboard by default
+    showSection('dashboard');
+
     // Navigation handling
     const navLinks = document.querySelectorAll('#app-navigation a');
     const sections = document.querySelectorAll('.finance-section');
@@ -1390,4 +1396,346 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     setupDashboard();
+
+    // Add real-time updates for existing investments
+    function setupRealTimeUpdates() {
+        const investmentsTable = document.getElementById('investments-table-body');
+        if (!investmentsTable) return;
+
+        // Update prices every minute
+        setInterval(async () => {
+            const investments = Array.from(investmentsTable.querySelectorAll('tr')).map(row => ({
+                symbol: row.dataset.symbol,
+                shares: parseFloat(row.dataset.shares)
+            }));
+
+            if (investments.length === 0) return;
+
+            try {
+                const response = await fetch(OC.generateUrl('/apps/finance_tracker/api/stocks/prices'), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'requesttoken': OC.requestToken
+                    },
+                    body: JSON.stringify({ symbols: investments.map(inv => inv.symbol) })
+                });
+                
+                const prices = await response.json();
+                updateInvestmentPrices(investments, prices);
+            } catch (error) {
+                console.error('Price update error:', error);
+            }
+        }, 60000); // Update every minute
+    }
+
+    function updateInvestmentPrices(investments, prices) {
+        investments.forEach(investment => {
+            const row = document.querySelector(`tr[data-symbol="${investment.symbol}"]`);
+            if (!row || !prices[investment.symbol]) return;
+
+            const currentPrice = prices[investment.symbol].price;
+            const purchasePrice = parseFloat(row.dataset.purchasePrice);
+            const shares = investment.shares;
+
+            // Calculate values
+            const totalValue = currentPrice * shares;
+            const totalReturn = totalValue - (purchasePrice * shares);
+            const returnPercent = ((currentPrice - purchasePrice) / purchasePrice) * 100;
+            
+            // Update row with new values and indicators
+            row.innerHTML = `
+                <td>${investment.symbol}</td>
+                <td>${investment.name}</td>
+                <td>${formatNumber(shares)}</td>
+                <td>$${formatNumber(purchasePrice)}</td>
+                <td class="current-price">$${formatNumber(currentPrice)}</td>
+                <td class="daily-change ${prices[investment.symbol].change >= 0 ? 'positive' : 'negative'}">
+                    <span class="change-indicator">
+                        ${prices[investment.symbol].change >= 0 ? '▲' : '▼'}
+                    </span>
+                    ${formatNumber(prices[investment.symbol].change)}%
+                </td>
+                <td class="total-value">$${formatNumber(totalValue)}</td>
+                <td class="total-return ${totalReturn >= 0 ? 'positive' : 'negative'}">
+                    $${formatNumber(totalReturn)}
+                    <span class="return-percent">(${formatNumber(returnPercent)}%)</span>
+                </td>
+                <td class="performance-metrics">
+                    <div class="metric">
+                        <span class="label">ROI:</span>
+                        <span class="${returnPercent >= 0 ? 'positive' : 'negative'}">
+                            ${formatNumber(returnPercent)}%
+                        </span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">Beta:</span>
+                        <span>${formatNumber(prices[investment.symbol].beta)}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">52w:</span>
+                        <span class="${prices[investment.symbol].yearChange >= 0 ? 'positive' : 'negative'}">
+                            ${formatNumber(prices[investment.symbol].yearChange)}%
+                        </span>
+                    </div>
+                </td>
+            `;
+        });
+    }
+
+    // Helper functions
+    function formatNumber(number) {
+        return Number(number).toFixed(2);
+    }
+
+    function formatVolume(volume) {
+        if (volume >= 1000000) {
+            return (volume / 1000000).toFixed(2) + 'M';
+        } else if (volume >= 1000) {
+            return (volume / 1000).toFixed(2) + 'K';
+        }
+        return volume;
+    }
+
+    // Helper function to debounce API calls
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // Initialize stock functionality
+    setupStockTracking();
+    setupRealTimeUpdates();
 });
+
+function initNavigation() {
+    // Get all navigation items with data-section attribute
+    const navItems = document.querySelectorAll('.app-navigation-entry-link[data-section]');
+    
+    navItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            // Remove active class from all navigation items
+            navItems.forEach(navItem => {
+                navItem.parentElement.classList.remove('active');
+            });
+            
+            // Add active class to clicked item
+            item.parentElement.classList.add('active');
+            
+            // Get the section to show from data-section attribute
+            const sectionId = item.getAttribute('data-section');
+            showSection(sectionId);
+        });
+    });
+}
+
+function showSection(sectionId) {
+    // Hide all sections
+    const sections = document.querySelectorAll('.finance-section');
+    sections.forEach(section => {
+        section.style.display = 'none';
+    });
+    
+    // Show the selected section
+    const selectedSection = document.getElementById(`${sectionId}-section`);
+    if (selectedSection) {
+        selectedSection.style.display = 'block';
+        
+        // Load section specific data if needed
+        switch(sectionId) {
+            case 'dashboard':
+                loadDashboardData();
+                break;
+            case 'accounts':
+                loadAccountsData();
+                break;
+            case 'transactions':
+                loadTransactionsData();
+                break;
+            case 'investments':
+                loadInvestmentsData();
+                break;
+            case 'budget':
+                loadBudgetData();
+                break;
+            case 'reports':
+                loadReportsData();
+                break;
+        }
+    }
+}
+
+// Data loading functions (to be implemented based on your backend API)
+function loadDashboardData() {
+    // Example implementation
+    const accountsSummary = document.getElementById('dashboard-accounts-summary');
+    const recentTransactions = document.getElementById('dashboard-recent-transactions');
+    const budgetOverview = document.getElementById('dashboard-budget-overview');
+    
+    // Show loading state
+    accountsSummary.innerHTML = '<div class="loading-indicator"><span class="icon-loading"></span></div>';
+    
+    // Make API call to fetch dashboard data
+    // Replace with your actual API endpoint
+    fetch(OC.generateUrl('/apps/finance_tracker/api/dashboard'))
+        .then(response => response.json())
+        .then(data => {
+            // Update dashboard sections with received data
+            updateDashboardUI(data);
+        })
+        .catch(error => {
+            console.error('Error loading dashboard data:', error);
+            // Show error state
+            accountsSummary.innerHTML = '<div class="empty-content"><div class="icon-error"></div><h2>Error loading dashboard data</h2></div>';
+        });
+}
+
+function loadAccountsData() {
+    const accountsList = document.querySelector('.accounts-list');
+    accountsList.innerHTML = '<div class="loading-indicator"><span class="icon-loading"></span></div>';
+    
+    // Implement accounts data loading
+}
+
+function loadTransactionsData() {
+    const transactionsTable = document.getElementById('transactions-table-body');
+    transactionsTable.innerHTML = '<tr><td colspan="6"><div class="loading-indicator"><span class="icon-loading"></span></div></td></tr>';
+    
+    // Implement transactions data loading
+}
+
+function loadInvestmentsData() {
+    const investmentsTable = document.getElementById('investments-table-body');
+    investmentsTable.innerHTML = '<tr><td colspan="8"><div class="loading-indicator"><span class="icon-loading"></span></div></td></tr>';
+    
+    // Implement investments data loading
+}
+
+function loadBudgetData() {
+    const budgetsList = document.querySelector('.budgets-list');
+    budgetsList.innerHTML = '<div class="loading-indicator"><span class="icon-loading"></span></div>';
+    
+    // Implement budget data loading
+}
+
+function loadReportsData() {
+    const reportsContainer = document.getElementById('generated-report-container');
+    reportsContainer.innerHTML = '<div class="loading-indicator"><span class="icon-loading"></span></div>';
+    
+    // Implement reports data loading
+}
+
+// Helper function to update dashboard UI
+function updateDashboardUI(data) {
+    // Example implementation
+    const accountsSummary = document.getElementById('dashboard-accounts-summary');
+    const recentTransactions = document.getElementById('dashboard-recent-transactions');
+    const budgetOverview = document.getElementById('dashboard-budget-overview');
+    
+    // Update accounts summary
+    accountsSummary.innerHTML = `
+        <div class="summary-card">
+            <h4>${t('finance_tracker', 'Total Balance')}</h4>
+            <div class="amount">${formatCurrency(data.totalBalance)}</div>
+        </div>
+    `;
+    
+    // Update other dashboard sections...
+}
+
+// Helper function to format currency
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD'
+    }).format(amount);
+}
+
+function setupStockTracking() {
+    const stockSearchInput = document.getElementById('stock-search-input');
+    const stockSearchResults = document.getElementById('stock-search-results');
+    
+    // Add real-time stock search
+    stockSearchInput.addEventListener('input', debounce(async (e) => {
+        const query = e.target.value.trim();
+        if (query.length < 2) return;
+        
+        try {
+            const response = await fetch(OC.generateUrl('/apps/finance_tracker/api/stocks/search'), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'requesttoken': OC.requestToken
+                },
+                body: JSON.stringify({ query })
+            });
+            
+            const data = await response.json();
+            displayStockSearchResults(data);
+        } catch (error) {
+            console.error('Stock search error:', error);
+            showNotification(t('finance_tracker', 'Failed to search stocks'), 'error');
+        }
+    }, 300));
+
+    function displayStockSearchResults(stocks) {
+        const resultsTable = document.getElementById('stock-search-results-table');
+        resultsTable.innerHTML = '';
+        
+        stocks.forEach(stock => {
+            const row = resultsTable.insertRow();
+            row.innerHTML = `
+                <td>${stock.symbol}</td>
+                <td>${stock.name}</td>
+                <td class="price">$${formatNumber(stock.price)}</td>
+                <td class="change ${stock.change >= 0 ? 'positive' : 'negative'}">
+                    <span class="change-indicator">
+                        ${stock.change >= 0 ? '▲' : '▼'}
+                    </span>
+                    ${formatNumber(stock.change)}%
+                </td>
+                <td class="performance">
+                    <div class="performance-metrics">
+                        <div class="metric">
+                            <span class="label">1d:</span>
+                            <span class="${stock.performance.day > 0 ? 'positive' : 'negative'}">
+                                ${formatNumber(stock.performance.day)}%
+                            </span>
+                        </div>
+                        <div class="metric">
+                            <span class="label">1m:</span>
+                            <span class="${stock.performance.month > 0 ? 'positive' : 'negative'}">
+                                ${formatNumber(stock.performance.month)}%
+                            </span>
+                        </div>
+                        <div class="metric">
+                            <span class="label">YTD:</span>
+                            <span class="${stock.performance.ytd > 0 ? 'positive' : 'negative'}">
+                                ${formatNumber(stock.performance.ytd)}%
+                            </span>
+                        </div>
+                    </div>
+                </td>
+                <td>${formatVolume(stock.volume)}</td>
+                <td>
+                    <button class="primary small add-stock-btn" 
+                            data-symbol="${stock.symbol}" 
+                            data-price="${stock.price}">
+                        ${t('finance_tracker', 'Add')}
+                    </button>
+                </td>
+            `;
+        });
+        
+        stockSearchResults.classList.remove('hidden');
+    }
+}

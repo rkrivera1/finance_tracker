@@ -3,17 +3,17 @@
       xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
     <id>finance_tracker</id>
     <name>Finance Tracker</name>
-    <summary>Personal finance and investment tracking application</summary>
-    <description>A comprehensive finance management tool for tracking expenses, budgets, and investments</description>
-    <version>1.0.1</version>
+    <summary>Track your finances and investments</summary>
+    <description><![CDATA[A comprehensive finance tracking app for Nextcloud]]></description>
+    <version>1.0.2</version>
     <licence>agpl</licence>
     <author>Juan Rivera</author>
     <namespace>FinanceTracker</namespace>
-    <category>finance</category>
+    <category>tools</category>
     <website>https://github.com/rkrivera1/nextcloud-finance-tracker</website>
     <bugs>https://github.com/rkrivera1/nextcloud-finance-tracker/issues</bugs>
     <dependencies>
-        <nextcloud min-version="20" max-version="30"/>
+        <nextcloud min-version="20" max-version="25"/>
         <php min-version="7.4"/>
     </dependencies>
     <settings>
@@ -23,7 +23,8 @@
         <navigation>
             <name>Finance Tracker</name>
             <route>finance_tracker.page.index</route>
-            <icon>app.svg</icon>
+            <icon>app-dark.svg</icon>
+            <order>4</order>
         </navigation>
     </navigations>
     <migrations>

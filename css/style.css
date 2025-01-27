@@ -39,25 +39,19 @@ html, body {
 }
 
 #app {
+    position: absolute;
+    top: 50px;  /* Adjust to match Nextcloud's top navigation bar height */
+    left: 0;
+    right: 0;
+    bottom: 0;
     display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    width: 100%;
-    max-width: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
-.app-content {
-    display: flex;
-    flex-grow: 1;
-    overflow: hidden;
 }
 
 #app-navigation {
-    flex: 0 0 250px;
-    background-color: var(--color-background-dark);
+    width: 300px;
+    flex-shrink: 0;
     overflow-y: auto;
+    background-color: var(--color-background);
     border-right: 1px solid var(--color-border);
 }
 
@@ -554,24 +548,31 @@ html, body {
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
-    #app {
-        flex-direction: column;
+@media (max-width: 1024px) {
+    .dashboard-overview-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 
-    #app-navigation {
-        width: 100%;
-        border-right: none;
-        border-bottom: 1px solid var(--color-border);
-    }
-
-    #app-navigation ul {
-        display: flex;
-        justify-content: space-around;
-    }
-
-    .finance-sections {
+    .dashboard-charts-section,
+    .dashboard-recent-activity {
         grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-overview-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .dashboard-quick-actions {
+        width: 100%;
+        justify-content: space-between;
+        margin-top: 10px;
     }
 }
 
@@ -817,5 +818,191 @@ html, body {
         width: 100%;
         justify-content: space-between;
         margin-top: 10px;
+    }
+}
+
+/* Investment Section Styles */
+.investments-section {
+    padding: 20px;
+}
+
+/* Stock Search Results */
+.stock-search-results {
+    margin-top: 20px;
+    background: var(--color-main-background);
+    border-radius: var(--border-radius);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+.stock-search-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.stock-search-container input {
+    flex: 1;
+    min-width: 200px;
+}
+
+/* Tables Styling */
+.investments-table,
+#stock-search-results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.investments-table th,
+.investments-table td,
+#stock-search-results-table th,
+#stock-search-results-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+}
+
+/* Price Changes and Indicators */
+.change-indicator {
+    display: inline-block;
+    margin-right: 4px;
+    font-size: 12px;
+}
+
+.positive {
+    color: #00c853;
+}
+
+.negative {
+    color: #ff1744;
+}
+
+.daily-change,
+.total-return {
+    font-weight: 500;
+}
+
+/* Performance Metrics */
+.performance-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.metric {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9em;
+}
+
+.metric .label {
+    color: var(--color-text-maxcontrast);
+    min-width: 40px;
+}
+
+/* Volume Formatting */
+td.volume {
+    font-family: var(--font-monospace);
+    text-align: right;
+}
+
+/* Hover Effects */
+.investments-table tbody tr:hover,
+#stock-search-results-table tbody tr:hover {
+    background-color: var(--color-background-hover);
+}
+
+/* Loading States */
+.loading-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: var(--color-text-maxcontrast);
+}
+
+.icon-loading {
+    margin-right: 8px;
+}
+
+/* Stock Details Modal */
+.stock-details-modal .modal-content {
+    max-width: 600px;
+}
+
+.stock-details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin: 20px 0;
+}
+
+.stock-detail {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    background: var(--color-background-hover);
+    border-radius: var(--border-radius);
+}
+
+.stock-detail strong {
+    color: var(--color-text-maxcontrast);
+    margin-bottom: 4px;
+}
+
+/* Return Percentage */
+.return-percent {
+    font-size: 0.9em;
+    margin-left: 4px;
+    color: var(--color-text-maxcontrast);
+}
+
+/* Add Investment Button */
+.add-stock-btn {
+    padding: 4px 8px;
+    font-size: 0.9em;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .performance-metrics {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .metric {
+        min-width: 100px;
+    }
+}
+
+@media (max-width: 768px) {
+    .stock-search-container {
+        flex-direction: column;
+    }
+
+    .investments-table,
+    #stock-search-results-table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .stock-details-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Update the app icon styles */
+.app-financetracker {
+    background-image: url('../img/app-dark.svg');
+    background-size: 32px;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* For dark theme support */
+@media (prefers-color-scheme: dark) {
+    .app-financetracker {
+        background-image: url('../img/app-light.svg');
     }
 }

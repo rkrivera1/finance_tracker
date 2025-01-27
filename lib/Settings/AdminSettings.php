@@ -18,13 +18,11 @@ class AdminSettings implements ISettings {
     }
 
     public function getForm(): TemplateResponse {
+        $apiKey = $this->config->getAppValue('finance_tracker', 'alpha_vantage_api_key', '');
+        
         $parameters = [
             // Stock API Provider Settings
-            'alpha_vantage_api_key' => $this->config->getAppValue(
-                $this->appName, 
-                'alpha_vantage_api_key', 
-                ''
-            ),
+            'alpha_vantage_api_key' => $apiKey,
             'finnhub_api_key' => $this->config->getAppValue(
                 $this->appName, 
                 'finnhub_api_key', 
