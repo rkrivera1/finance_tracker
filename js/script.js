@@ -4,10 +4,48 @@ document.addEventListener('DOMContentLoaded', function() {
     const sections = document.querySelectorAll('.finance-section');
     const modalOverlay = document.getElementById('modal-overlay');
 
+    // Section Navigation
+    function setupSectionNavigation() {
+        const navLinks = document.querySelectorAll('#app-navigation a');
+        const sections = document.querySelectorAll('.finance-section');
+
+        // Show dashboard by default
+        showSection('dashboard');
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const sectionId = this.getAttribute('data-section');
+                
+                // Update active state
+                navLinks.forEach(navLink => navLink.classList.remove('active'));
+                this.classList.add('active');
+
+                // Show selected section
+                showSection(sectionId);
+            });
+        });
+
+        function showSection(sectionId) {
+            // Hide all sections
+            sections.forEach(section => {
+                section.style.display = 'none';
+            });
+
+            // Show selected section
+            const selectedSection = document.getElementById(`${sectionId}-section`);
+            if (selectedSection) {
+                selectedSection.style.display = 'block';
+            }
+        }
+    }
+
+    setupSectionNavigation();
+
     // Show the first section by default
     function showDefaultSection() {
         sections.forEach(section => section.style.display = 'none');
-        document.getElementById('accounts-section').style.display = 'block';
+        document.getElementById('dashboard-section').style.display = 'block';
     }
 
     // Navigation click handler
@@ -1146,4 +1184,210 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     setupStockSearch();
+
+    // Dashboard Functionality
+    function setupDashboard() {
+        const dashboardSection = document.getElementById('dashboard-section');
+        const addTransactionQuickBtn = document.getElementById('add-transaction-quick-btn');
+        const addInvestmentQuickBtn = document.getElementById('add-investment-quick-btn');
+
+        // Quick action buttons
+        addTransactionQuickBtn.addEventListener('click', () => {
+            const transactionModal = document.getElementById('transaction-modal');
+            transactionModal.classList.remove('hidden');
+        });
+
+        addInvestmentQuickBtn.addEventListener('click', () => {
+            const investmentModal = document.getElementById('investment-modal');
+            investmentModal.classList.remove('hidden');
+        });
+
+        // Fetch dashboard data
+        function fetchDashboardData() {
+            fetch('/apps/finance_tracker/dashboard/data', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'requesttoken': OC.requestToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update overview cards
+                updateOverviewCards(data.overview);
+                
+                // Update charts
+                updateIncomeExpensesChart(data.incomeExpensesData);
+                updateSpendingCategoriesChart(data.spendingCategoriesData);
+                
+                // Update recent activities
+                updateRecentTransactions(data.recentTransactions);
+                updateRecentInvestments(data.recentInvestments);
+            })
+            .catch(error => {
+                console.error('Dashboard data fetch error:', error);
+            });
+        }
+
+        function updateOverviewCards(overview) {
+            // Total Balance
+            const totalBalanceAmount = document.getElementById('total-balance-amount');
+            const balanceTrendIcon = document.getElementById('balance-trend-icon');
+            const balanceTrendPercentage = document.getElementById('balance-trend-percentage');
+            
+            totalBalanceAmount.textContent = `$${overview.totalBalance.toFixed(2)}`;
+            balanceTrendIcon.classList.toggle('positive', overview.balanceTrend >= 0);
+            balanceTrendIcon.classList.toggle('negative', overview.balanceTrend < 0);
+            balanceTrendPercentage.textContent = `${Math.abs(overview.balanceTrend).toFixed(2)}%`;
+
+            // Total Income
+            const totalIncomeAmount = document.getElementById('total-income-amount');
+            const incomeTrendIcon = document.getElementById('income-trend-icon');
+            const incomeTrendPercentage = document.getElementById('income-trend-percentage');
+            
+            totalIncomeAmount.textContent = `$${overview.totalIncome.toFixed(2)}`;
+            incomeTrendIcon.classList.toggle('positive', overview.incomeTrend >= 0);
+            incomeTrendIcon.classList.toggle('negative', overview.incomeTrend < 0);
+            incomeTrendPercentage.textContent = `${Math.abs(overview.incomeTrend).toFixed(2)}%`;
+
+            // Total Expenses
+            const totalExpensesAmount = document.getElementById('total-expenses-amount');
+            const expensesTrendIcon = document.getElementById('expenses-trend-icon');
+            const expensesTrendPercentage = document.getElementById('expenses-trend-percentage');
+            
+            totalExpensesAmount.textContent = `$${overview.totalExpenses.toFixed(2)}`;
+            expensesTrendIcon.classList.toggle('positive', overview.expensesTrend >= 0);
+            expensesTrendIcon.classList.toggle('negative', overview.expensesTrend < 0);
+            expensesTrendPercentage.textContent = `${Math.abs(overview.expensesTrend).toFixed(2)}%`;
+
+            // Total Investments
+            const totalInvestmentsValue = document.getElementById('total-investments-value');
+            const investmentsTrendIcon = document.getElementById('investments-trend-icon');
+            const investmentsTrendPercentage = document.getElementById('investments-trend-percentage');
+            
+            totalInvestmentsValue.textContent = `$${overview.totalInvestments.toFixed(2)}`;
+            investmentsTrendIcon.classList.toggle('positive', overview.investmentsTrend >= 0);
+            investmentsTrendIcon.classList.toggle('negative', overview.investmentsTrend < 0);
+            investmentsTrendPercentage.textContent = `${Math.abs(overview.investmentsTrend).toFixed(2)}%`;
+        }
+
+        function updateIncomeExpensesChart(chartData) {
+            const ctx = document.getElementById('income-expenses-chart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [
+                        {
+                            label: 'Income',
+                            data: chartData.incomeData,
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Expenses',
+                            data: chartData.expensesData,
+                            backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Amount ($)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateSpendingCategoriesChart(chartData) {
+            const ctx = document.getElementById('spending-categories-chart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: chartData.categories,
+                    datasets: [{
+                        data: chartData.amounts,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.6)',
+                            'rgba(54, 162, 235, 0.6)',
+                            'rgba(255, 206, 86, 0.6)',
+                            'rgba(75, 192, 192, 0.6)',
+                            'rgba(153, 102, 255, 0.6)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateRecentTransactions(transactions) {
+            const transactionsBody = document.getElementById('dashboard-recent-transactions-body');
+            transactionsBody.innerHTML = '';
+
+            transactions.forEach(transaction => {
+                const row = transactionsBody.insertRow();
+                
+                const dateCell = row.insertCell(0);
+                dateCell.textContent = transaction.date;
+                
+                const descriptionCell = row.insertCell(1);
+                descriptionCell.textContent = transaction.description;
+                
+                const categoryCell = row.insertCell(2);
+                categoryCell.textContent = transaction.category;
+                
+                const amountCell = row.insertCell(3);
+                amountCell.textContent = `$${transaction.amount.toFixed(2)}`;
+                amountCell.classList.add(transaction.type === 'income' ? 'positive' : 'negative');
+            });
+        }
+
+        function updateRecentInvestments(investments) {
+            const investmentsBody = document.getElementById('dashboard-recent-investments-body');
+            investmentsBody.innerHTML = '';
+
+            investments.forEach(investment => {
+                const row = investmentsBody.insertRow();
+                
+                const symbolCell = row.insertCell(0);
+                symbolCell.textContent = investment.symbol;
+                
+                const nameCell = row.insertCell(1);
+                nameCell.textContent = investment.name;
+                
+                const quantityCell = row.insertCell(2);
+                quantityCell.textContent = investment.quantity;
+                
+                const valueCell = row.insertCell(3);
+                valueCell.textContent = `$${investment.currentValue.toFixed(2)}`;
+            });
+        }
+
+        // Initial dashboard data fetch
+        fetchDashboardData();
+
+        // Periodic refresh (every 5 minutes)
+        setInterval(fetchDashboardData, 5 * 60 * 1000);
+    }
+
+    setupDashboard();
 });
