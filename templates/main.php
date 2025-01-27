@@ -30,6 +30,17 @@ style('finance_tracker', 'style');
             </a>
         </li>
     </ul>
+    
+    <div id="app-settings">
+        <div id="app-settings-header">
+            <button class="settings-button" data-apps-slide-toggle="#app-settings-content">
+                <?php p($l->t('Settings')); ?>
+            </button>
+        </div>
+        <div id="app-settings-content">
+            <!-- Settings options will go here -->
+        </div>
+    </div>
 </div>
 
 <div id="app-content">
@@ -44,30 +55,22 @@ style('finance_tracker', 'style');
 
         <!-- Dashboard Section -->
         <div id="dashboard-section" class="section active">
-            <div id="app-content-wrapper">
-                <div class="app-content-list">
-                    <div class="empty-content icon-loading" id="dashboard-loading">
-                        <?php p($l->t('Loading dashboard...')); ?>
-                    </div>
-                    
-                    <div id="dashboard-content" class="dashboard-content hidden">
-                        <div class="grid-row">
-                            <div class="grid-item">
-                                <div class="content-card">
-                                    <div class="content-card-header">
-                                        <h3><?php p($l->t('Account Summary')); ?></h3>
-                                    </div>
-                                    <div class="content-card-body" id="dashboard-accounts-summary">
-                                        <div class="summary-total">
-                                            <span class="summary-label"><?php p($l->t('Total Balance')); ?></span>
-                                            <span class="summary-amount" id="total-balance">$0.00</span>
-                                        </div>
-                                        <div class="accounts-list" id="accounts-list">
-                                            <!-- Accounts will be populated here -->
-                                        </div>
-                                    </div>
-                                </div>
+            <div class="app-content-list">
+                <div class="section-header">
+                    <h2><?php p($l->t('Financial Overview')); ?></h2>
+                </div>
+                <div class="grid-row">
+                    <div class="grid-item">
+                        <div class="content-card">
+                            <div class="content-card-header">
+                                <h3><?php p($l->t('Account Summary')); ?></h3>
                             </div>
+                            <div class="content-card-body" id="dashboard-accounts-summary">
+                                <div class="icon-loading-small"></div>
+                            </div>
+                        </div>
+                    </div>
+
 
                             <div class="grid-item">
                                 <div class="content-card">
