@@ -40,13 +40,11 @@
         </navigation>
     </navigations>
     
-    <repair-steps>
-        <post-migration>
-            <step>OCA\FinanceTracker\Migration\Version001000Date20240101PostMigration</step>
-        </post-migration>
-    </repair-steps>
-    
     <migrations>
-        <migration>OCA\FinanceTracker\Migration\Version001000Date20240101</migration>
+        <migration>OCA\FinanceTracker\Migration\Version000000001Date20240126000000</migration>
     </migrations>
+
+
+
+
 </info>
