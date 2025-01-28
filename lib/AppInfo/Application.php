@@ -66,34 +66,47 @@ class Application extends App implements IBootstrap {
         });
 
         // Controller registrations
-        $context->registerRouteCradle(self::APP_ID, function($c) {
-            return [
-                new \OCA\FinanceTracker\Controller\PageController(
-                    $c->query(\OCP\IRequest::class),
-                    $c->query(\OCP\IURLGenerator::class)
-                ),
-                new \OCA\FinanceTracker\Controller\AccountController(
-                    $c->query(\OCP\IRequest::class),
-                    $c->query(AccountService::class)
-                ),
-                new \OCA\FinanceTracker\Controller\TransactionController(
-                    $c->query(\OCP\IRequest::class),
-                    $c->query(TransactionService::class)
-                ),
-                new \OCA\FinanceTracker\Controller\BudgetController(
-                    $c->query(\OCP\IRequest::class),
-                    $c->query(BudgetService::class)
-                ),
-                new \OCA\FinanceTracker\Controller\InvestmentController(
-                    $c->query(\OCP\IRequest::class),
-                    $c->query(InvestmentService::class)
-                ),
-                new \OCA\FinanceTracker\Controller\SettingsController(
-                    $c->query(\OCP\IRequest::class),
-                    $c->query(\OCP\IConfig::class),
-                    $c->query(\OCP\IUserSession::class)
-                )
-            ];
+        $context->registerController(\OCA\FinanceTracker\Controller\PageController::class, function($c) {
+            return new \OCA\FinanceTracker\Controller\PageController(
+                $c->query(\OCP\IRequest::class),
+                $c->query(\OCP\IURLGenerator::class)
+            );
+        });
+
+        $context->registerController(\OCA\FinanceTracker\Controller\AccountController::class, function($c) {
+            return new \OCA\FinanceTracker\Controller\AccountController(
+                $c->query(\OCP\IRequest::class),
+                $c->query(AccountService::class)
+            );
+        });
+
+        $context->registerController(\OCA\FinanceTracker\Controller\TransactionController::class, function($c) {
+            return new \OCA\FinanceTracker\Controller\TransactionController(
+                $c->query(\OCP\IRequest::class),
+                $c->query(TransactionService::class)
+            );
+        });
+
+        $context->registerController(\OCA\FinanceTracker\Controller\BudgetController::class, function($c) {
+            return new \OCA\FinanceTracker\Controller\BudgetController(
+                $c->query(\OCP\IRequest::class),
+                $c->query(BudgetService::class)
+            );
+        });
+
+        $context->registerController(\OCA\FinanceTracker\Controller\InvestmentController::class, function($c) {
+            return new \OCA\FinanceTracker\Controller\InvestmentController(
+                $c->query(\OCP\IRequest::class),
+                $c->query(InvestmentService::class)
+            );
+        });
+
+        $context->registerController(\OCA\FinanceTracker\Controller\SettingsController::class, function($c) {
+            return new \OCA\FinanceTracker\Controller\SettingsController(
+                $c->query(\OCP\IRequest::class),
+                $c->query(\OCP\IConfig::class),
+                $c->query(\OCP\IUserSession::class)
+            );
         });
     }
 
@@ -105,6 +118,10 @@ class Application extends App implements IBootstrap {
 
         // Default admin settings
         $this->setDefaultAdminSettings($config);
+
+        // Register background job
+        $jobList = $context->getAppContainer()->get(IJobList::class);
+        $jobList->add(DataRetentionJob::class);
 
         // Navigation menu
         $context->getAppContainer()
@@ -121,10 +138,6 @@ class Application extends App implements IBootstrap {
                     'name' => $l10n->t('Finance Tracker')
                 ];
             });
-
-        // Register background job
-        $jobList = $context->getAppContainer()->get(IJobList::class);
-        $jobList->add(DataRetentionJob::class);
     }
 
     /**
